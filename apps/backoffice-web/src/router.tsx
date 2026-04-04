@@ -1,18 +1,28 @@
 import { createBrowserRouter } from "react-router";
 
+import { ProtectedRoute } from "./components/protected-route";
 import { AppLayout } from "./layouts/app-layout";
 import { AuditPage } from "./pages/audit-page";
 import { EmrPage } from "./pages/emr-page";
 import { EncounterDetailPage } from "./pages/encounter-detail-page";
 import { EncountersPage } from "./pages/encounters-page";
 import { IndexPage } from "./pages/index-page";
+import { LoginPage } from "./pages/login-page";
 import { PrescriptionsPage } from "./pages/prescriptions-page";
 import { WorkbenchPage } from "./pages/workbench-page";
 
 export const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
     path: "/",
-    element: <AppLayout />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <IndexPage /> },
       { path: "workbench", element: <WorkbenchPage /> },

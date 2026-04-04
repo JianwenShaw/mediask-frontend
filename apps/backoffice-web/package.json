@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@ant-design/icons": "~6.1.1",
     "@mediask/api-client": "workspace:*",
-    "@mediask/shared-types": "workspace:*"
+    "@mediask/shared-types": "workspace:*",
+    "antd": "^6.3.5"
   }
 }
