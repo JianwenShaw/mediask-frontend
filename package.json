@@ -3,10 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
-    "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "dev": "pnpm dev:patient",
+    "dev:patient": "vite --config apps/patient-h5/vite.config.ts",
+    "dev:backoffice": "vite --config apps/backoffice-web/vite.config.ts --port 5174",
+    "build": "pnpm build:patient && pnpm build:backoffice",
+    "build:patient": "vite build --config apps/patient-h5/vite.config.ts",
+    "build:backoffice": "vite build --config apps/backoffice-web/vite.config.ts",
+    "preview:patient": "vite preview --config apps/patient-h5/vite.config.ts",
+    "preview:backoffice": "vite preview --config apps/backoffice-web/vite.config.ts --port 4174",
+    "typecheck": "tsc -p packages/shared-types/tsconfig.json --noEmit && tsc -p packages/api-client/tsconfig.json --noEmit && tsc -p apps/patient-h5/tsconfig.json --noEmit && tsc -p apps/backoffice-web/tsconfig.json --noEmit"
   },
   "dependencies": {
     "@react-router/node": "7.13.2",

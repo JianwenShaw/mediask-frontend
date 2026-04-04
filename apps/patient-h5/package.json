@@ -1,0 +1,9 @@
+{
+  "name": "@mediask/patient-h5",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@mediask/api-client": "workspace:*",
+    "@mediask/shared-types": "workspace:*"
+  }
+}

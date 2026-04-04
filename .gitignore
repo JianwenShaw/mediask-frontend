@@ -1,7 +1,10 @@
 .DS_Store
 .env
+.env.*
 /node_modules/
+*.tsbuildinfo
 
 # React Router
-/.react-router/
-/build/
+**/.react-router/
+**/build/
+**/node_modules/
