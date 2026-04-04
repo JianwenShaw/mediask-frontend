@@ -1,7 +1,11 @@
+import type { LoginRequest } from "@mediask/shared-types";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, Typography, message } from "antd";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router";
+
+import { useAuth } from "../auth/auth-context";
+import { backofficeApi } from "../lib/api";
 
 const { Title, Text } = Typography;
 
@@ -9,26 +13,41 @@ export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const auth = useAuth();
 
-  const onFinish = (values: any) => {
+  const onFinish = async (values: LoginRequest) => {
     setLoading(true);
-    // Simulate API call for login
-    setTimeout(() => {
-      setLoading(false);
-      if (values.username && values.password) {
-        // Mock successful login by setting a token
-        localStorage.setItem("backoffice_token", "mock-jwt-token");
-        localStorage.setItem("backoffice_user", values.username);
-        message.success("登录成功！欢迎回来。");
 
-        // Redirect to intended page or workbench
-        const from = location.state?.from?.pathname || "/workbench";
-        navigate(from, { replace: true });
-      } else {
-        message.error("用户名或密码错误，请重试。");
-      }
-    }, 800);
+    try {
+      const result = await backofficeApi.login(values);
+      auth.completeLogin(result.data);
+      void message.success("登录成功。");
+
+      const fromState = location.state?.from
+        ? `${location.state.from.pathname}${location.state.from.search ?? ""}${location.state.from.hash ?? ""}`
+        : undefined;
+      const fromQuery = searchParams.get("from");
+      const redirectTo = fromState || fromQuery || "/";
+
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      const errorText =
+        error instanceof Error && "requestId" in error && typeof error.requestId === "string"
+          ? `${error.message} (requestId: ${error.requestId})`
+          : error instanceof Error
+            ? error.message
+            : "登录失败";
+
+      void message.error(errorText);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (auth.status === "authenticated") {
+    return <Navigate to={auth.hasBackofficeAccess ? "/" : "/forbidden"} replace />;
+  }
 
   return (
     <div
@@ -184,7 +203,7 @@ export const LoginPage = () => {
               >
                 <Input.Password
                   prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
-                  placeholder="密码 (随便输即可登录)"
+                  placeholder="请输入密码"
                   style={{ borderRadius: 6 }}
                 />
               </Form.Item>

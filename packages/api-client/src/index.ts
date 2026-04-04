@@ -1,7 +1,10 @@
 import type {
   AiChatRequest,
   AiChatStreamMeta,
+  LoginRequest,
+  LoginResponse,
   Result,
+  UserContext,
 } from "@mediask/shared-types";
 
 export type ApiClientOptions = {
@@ -324,6 +327,19 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
         ...init,
         method: "POST",
         body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    },
+    login(body: LoginRequest, init?: RequestInit) {
+      return request<LoginResponse>("/api/v1/auth/login", {
+        ...init,
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+    },
+    getCurrentUser(init?: RequestInit) {
+      return request<UserContext>("/api/v1/auth/me", {
+        ...init,
+        method: "GET",
       });
     },
     request,

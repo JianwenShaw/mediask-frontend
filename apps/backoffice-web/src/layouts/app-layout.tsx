@@ -14,25 +14,59 @@ import { Avatar, Badge, Breadcrumb, Button, ConfigProvider, Dropdown, Input, Lay
 import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 
+import { useAuth } from "../auth/auth-context";
+
 const { Header, Content, Footer, Sider } = Layout;
 const { Text } = Typography;
+
+const roleLabels: Record<string, string> = {
+  DOCTOR: "医生",
+  ADMIN: "管理员",
+  PATIENT: "患者",
+};
 
 export const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   const handleLogout = () => {
-    localStorage.removeItem("backoffice_token");
-    localStorage.removeItem("backoffice_user");
+    auth.logout();
     navigate("/login", { replace: true });
   };
 
-  const username = localStorage.getItem("backoffice_user") || "Dr. Smith";
+  const username = auth.user?.displayName || auth.user?.username || "未知用户";
+  const roleText = (auth.user?.roles ?? []).map((role) => roleLabels[role] ?? role).join(" | ") || "未分配角色";
+  const canAccessDoctorPages = auth.hasAnyRole(["DOCTOR"]);
+  const canAccessAdminPages = auth.hasAnyRole(["ADMIN"]);
+  const menuItems = [
+    canAccessDoctorPages
+      ? {
+          key: "1",
+          icon: <DesktopOutlined />,
+          label: <Link to="/workbench">Workbench</Link>,
+        }
+      : null,
+    canAccessDoctorPages
+      ? {
+          key: "2",
+          icon: <MedicineBoxOutlined />,
+          label: <Link to="/encounters">Encounters</Link>,
+        }
+      : null,
+    canAccessAdminPages
+      ? {
+          key: "3",
+          icon: <AuditOutlined />,
+          label: <Link to="/audit">Audit Logs</Link>,
+        }
+      : null,
+  ].filter((item): item is NonNullable<typeof item> => item !== null);
 
   // Determine current active menu key based on pathname
   let selectedKey = "1";
@@ -122,23 +156,7 @@ export const AppLayout = () => {
             selectedKeys={[selectedKey]}
             mode="inline"
             style={{ borderRight: 0, marginTop: 8 }} // 增加一点上边距
-            items={[
-              {
-                key: "1",
-                icon: <DesktopOutlined />,
-                label: <Link to="/workbench">Workbench</Link>,
-              },
-              {
-                key: "2",
-                icon: <MedicineBoxOutlined />,
-                label: <Link to="/encounters">Encounters</Link>,
-              },
-              {
-                key: "3",
-                icon: <AuditOutlined />,
-                label: <Link to="/audit">Audit Logs</Link>,
-              },
-            ]}
+            items={menuItems}
           />
         </Sider>
 
@@ -219,7 +237,7 @@ export const AppLayout = () => {
                   />
                   <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
                     <Text strong style={{ fontSize: 13 }}>{username}</Text>
-                    <Text type="secondary" style={{ fontSize: 11 }}>主任医师 | 呼吸科</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{roleText}</Text>
                   </div>
                   <DownOutlined style={{ fontSize: 10, color: "#8c8c8c" }} />
                 </div>
@@ -249,6 +267,8 @@ export const AppLayout = () => {
               style={{
                 flex: 1,
                 minHeight: 360,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
               }}
             >
               <Outlet />

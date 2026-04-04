@@ -8,6 +8,8 @@ export type Result<T> = {
 
 export type ApiResult<T> = Result<T>;
 
+export type AuthRole = "PATIENT" | "DOCTOR" | "ADMIN";
+
 export type RiskLevel = "low" | "medium" | "high";
 
 export type GuardrailAction = "allow" | "caution" | "refuse";
@@ -32,11 +34,24 @@ export type RecommendedDepartment = {
   reason: string;
 };
 
-export type AuthUser = {
+export type UserContext = {
   userId: number;
   username: string;
   displayName: string;
   roles: string[];
+};
+
+export type AuthUser = UserContext;
+
+export type LoginRequest = {
+  username: string;
+  password: string;
+};
+
+export type LoginResponse = {
+  accessToken: string;
+  refreshToken: string;
+  userContext: UserContext;
 };
 
 export type AiChatRequest = {
