@@ -6,7 +6,7 @@
 - Deliver the demo chain: `login -> AI consultation -> triage result -> registration -> encounter -> EMR -> prescription -> audit`.
 - Integrate against real backend contracts defined in `docs/docs/10A-JAVA_AI_API_CONTRACT.md`.
 
-## 1. Monorepo Restructure
+## 1. Monorepo Restructure[DONE]
 
 - Create the workspace layout:
   - `apps/patient-h5`
@@ -21,7 +21,7 @@
 - Ensure both apps can be developed and built independently.
 - Keep dependency changes manual only. Do not modify dependency files to add packages automatically.
 
-## 2. Shared Packages
+## 2. Shared Packages[DONE]
 
 ### `packages/shared-types`
 

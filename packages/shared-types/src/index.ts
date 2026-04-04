@@ -1,10 +1,12 @@
-export type ApiResult<T> = {
+export type Result<T> = {
   code: number | string;
   msg: string;
   data: T;
   requestId: string;
   timestamp: string;
 };
+
+export type ApiResult<T> = Result<T>;
 
 export type RiskLevel = "low" | "medium" | "high";
 
@@ -34,7 +36,7 @@ export type AuthUser = {
   userId: number;
   username: string;
   displayName: string;
-  role: string;
+  roles: string[];
 };
 
 export type AiChatRequest = {
@@ -66,6 +68,19 @@ export type AiChatStreamMeta = {
   sessionId: number;
   turnId: number;
   triageResult: TriageResult;
+};
+
+export type AiSessionTurn = {
+  turnId: number;
+  role: string;
+  content: string;
+  createdAt: string;
+};
+
+export type AiSessionDetail = {
+  sessionId: number;
+  sceneType: "PRE_CONSULTATION";
+  turns: AiSessionTurn[];
 };
 
 export type RegistrationHandoff = {
