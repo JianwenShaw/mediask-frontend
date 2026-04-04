@@ -49,21 +49,21 @@ export const AppLayout = () => {
       ? {
           key: "1",
           icon: <DesktopOutlined />,
-          label: <Link to="/workbench">Workbench</Link>,
+          label: <Link to="/workbench">工作台</Link>,
         }
       : null,
     canAccessDoctorPages
       ? {
           key: "2",
           icon: <MedicineBoxOutlined />,
-          label: <Link to="/encounters">Encounters</Link>,
+          label: <Link to="/encounters">就诊管理</Link>,
         }
       : null,
     canAccessAdminPages
       ? {
           key: "3",
           icon: <AuditOutlined />,
-          label: <Link to="/audit">Audit Logs</Link>,
+          label: <Link to="/audit">审计日志</Link>,
         }
       : null,
   ].filter((item): item is NonNullable<typeof item> => item !== null);
