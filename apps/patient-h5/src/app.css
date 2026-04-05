@@ -17,14 +17,37 @@ html {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--patient-ink);
+  -webkit-tap-highlight-color: transparent; /* remove highlight on mobile */
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* Custom utility classes for H5 */
+@utility min-h-screen-safe {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@utility pb-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+@utility mb-safe {
+  margin-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
 }

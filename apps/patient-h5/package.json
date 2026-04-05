@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@mediask/api-client": "workspace:*",
-    "@mediask/shared-types": "workspace:*"
+    "@mediask/shared-types": "workspace:*",
+    "zustand": "^5.0.12"
   }
 }
