@@ -1,5 +1,9 @@
 # Repository Instructions
 
+## Package Manager
+
+Use `pnpm` instead of `npm`
+
 ## Dependency And Lockfile Policy
 
 - The agent must not modify `pnpm-lock.yaml` unless the user explicitly asked for dependency installation or lockfile refresh.
@@ -11,3 +15,7 @@
 ## UI/UX Guidelines
 
 - When working on UI/UX related code, the agent MUST consult `docs/docs/08A-DESIGN_GUIDELINES.md` to ensure adherence to the project's design philosophy and best practices.
+
+## Security Guidelines
+
+- **SVG Icon Security**: When using inline SVG icons, the agent must strictly guard against security vulnerabilities (such as XSS). The agent must only use static, hardcoded SVG paths from trusted open-source libraries (e.g., Heroicons, Lucide). The agent MUST NEVER use `dangerouslySetInnerHTML` to render unverified, user-uploaded, or dynamically fetched external SVG strings.

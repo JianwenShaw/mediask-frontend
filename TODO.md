@@ -69,21 +69,26 @@
 - Login page
   - `/api/v1/auth/login`
   - `/api/v1/auth/me`
+  - H5 UI adaptation with appropriate safe-area padding
 - AI consultation page
   - `/api/v1/ai/chat/stream`
-  - Stream answer rendering
+  - Stream answer rendering with blinking cursor for typing effect
+  - Markdown safe rendering (sanitize HTML) and mobile typography
   - Consume `meta.triageResult` as the only structured truth
-  - Preserve history and `requestId` on failure
+  - Preserve history and `requestId` on failure, with local "retry" button to avoid white screen
 - Triage result page
   - `/api/v1/ai/sessions/{sessionId}/triage-result`
-  - Show recommended departments, care advice, citations, next action
+  - Show recommended departments, care advice, citations, next action using mobile card layout
 - High-risk page
   - Only handle `EMERGENCY_OFFLINE` and `MANUAL_SUPPORT`
   - Do not continue normal consultation flow
+  - Use strong visual blocking (danger red color `#FF4D4F`/`red-500`) and prominent "emergency call" actions
 - Registration page
   - `/api/v1/ai/sessions/{sessionId}/registration-handoff`
   - `/api/v1/clinic-sessions`
   - `/api/v1/registrations`
+  - Use Skeleton/pulse loading states instead of full-page spinners
+  - Fixed bottom action bar (safe-area adapted) for main actions like "Submit"
 - My registrations page
   - `/api/v1/registrations`
 
@@ -94,7 +99,7 @@
 - Render AI output safely. Never inject raw HTML.
 - Keep the H5 UI optimized for mobile layout and large tap targets.
 
-## 4. Backoffice App: `apps/backoffice-web`
+## 4. Backoffice App: `apps/backoffice-web`[DONE]
 
 ### Routes
 
