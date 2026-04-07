@@ -53,44 +53,43 @@
   - `end`
   - `error`
 
-## 3. Patient App: `apps/patient-h5`
+## 3. Patient App: `apps/patient-h5` [IN PROGRESS]
 
-### Routes
+### Shared/API
+- [ ] Remove `src/services/mock/api.ts` entirely and replace all imports with real API client calls.
 
-- `/login`
-- `/ai/session/:sessionId`
-- `/triage/result/:sessionId`
-- `/triage/high-risk/:sessionId`
-- `/registrations/new`
-- `/registrations`
+### Routes & Pages
 
-### Pages
+- [x] **Login page** (`/login`)
+  - [x] Connect `/api/v1/auth/login`
+  - [x] Connect `/api/v1/auth/me`
+  - [x] H5 UI adaptation with appropriate safe-area padding
 
-- Login page
-  - `/api/v1/auth/login`
-  - `/api/v1/auth/me`
-  - H5 UI adaptation with appropriate safe-area padding
-- AI consultation page
-  - `/api/v1/ai/chat/stream`
-  - Stream answer rendering with blinking cursor for typing effect
-  - Markdown safe rendering (sanitize HTML) and mobile typography
-  - Consume `meta.triageResult` as the only structured truth
-  - Preserve history and `requestId` on failure, with local "retry" button to avoid white screen
-- Triage result page
-  - `/api/v1/ai/sessions/{sessionId}/triage-result`
-  - Show recommended departments, care advice, citations, next action using mobile card layout
-- High-risk page
-  - Only handle `EMERGENCY_OFFLINE` and `MANUAL_SUPPORT`
-  - Do not continue normal consultation flow
-  - Use strong visual blocking (danger red color `#FF4D4F`/`red-500`) and prominent "emergency call" actions
-- Registration page
-  - `/api/v1/ai/sessions/{sessionId}/registration-handoff`
-  - `/api/v1/clinic-sessions`
-  - `/api/v1/registrations`
-  - Use Skeleton/pulse loading states instead of full-page spinners
-  - Fixed bottom action bar (safe-area adapted) for main actions like "Submit"
-- My registrations page
-  - `/api/v1/registrations`
+- [ ] **AI consultation page** (`/ai/session/:sessionId`)
+  - [ ] Connect `/api/v1/ai/chat/stream` using `connectAiChatStream`
+  - [ ] Stream answer rendering with blinking cursor for typing effect
+  - [x] Markdown safe rendering (sanitize HTML) and mobile typography
+  - [ ] Consume `meta.triageResult` as the only structured truth
+  - [ ] Preserve history and `requestId` on failure, with local "retry" button to avoid white screen
+
+- [ ] **Triage result page** (`/triage/result/:sessionId`)
+  - [ ] Connect `/api/v1/ai/sessions/{sessionId}/triage-result`
+  - [x] Show recommended departments, care advice, citations, next action using mobile card layout
+
+- [ ] **High-risk page** (`/triage/high-risk/:sessionId`)
+  - [x] Only handle `EMERGENCY_OFFLINE` and `MANUAL_SUPPORT`
+  - [x] Do not continue normal consultation flow
+  - [x] Use strong visual blocking (danger red color `#FF4D4F`/`red-500`) and prominent "emergency call" actions
+
+- [ ] **Registration page** (`/registrations/new`)
+  - [ ] Connect `/api/v1/ai/sessions/{sessionId}/registration-handoff`
+  - [ ] Connect `/api/v1/clinic-sessions`
+  - [ ] Connect `/api/v1/registrations` for submission
+  - [x] Use Skeleton/pulse loading states instead of full-page spinners
+  - [x] Fixed bottom action bar (safe-area adapted) for main actions like "Submit"
+
+- [ ] **My registrations page** (`/registrations`)
+  - [ ] Connect `/api/v1/registrations`
 
 ### Rules
 
