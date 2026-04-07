@@ -1,6 +1,8 @@
 import type { LoginResponse, UserContext } from "@mediask/shared-types";
 import { create } from "zustand";
 
+import { usePatientFlowStore } from "../flow/patient-flow-store";
+
 const STORAGE_KEY = "patient_auth";
 
 export type PatientAuthStatus =
@@ -116,6 +118,7 @@ export const usePatientAuthStore = create<PatientAuthStore>((set, get) => ({
   },
   clearSession() {
     writeStoredAuthState(defaultStoredAuthState);
+    usePatientFlowStore.getState().resetFlow();
     set({
       ...defaultStoredAuthState,
       status: "anonymous",

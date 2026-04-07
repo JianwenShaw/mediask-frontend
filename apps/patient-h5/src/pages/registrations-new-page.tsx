@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
+import { patientFlowPaths, usePatientFlowStore } from "../flow/patient-flow-store";
 import { mockGetRegistrationHandoff, mockSubmitRegistration } from "../services/mock/api";
 
 const formatLocalDate = (date: Date) => {
@@ -12,28 +13,65 @@ const formatLocalDate = (date: Date) => {
 
 const dayNames = ["日", "一", "二", "三", "四", "五", "六"];
 
+type Department = {
+  id: string;
+  name: string;
+  available: boolean;
+};
+
 export const RegistrationsNewPage = () => {
   const navigate = useNavigate();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [departments, setDepartments] = useState<any[]>([]);
+  const status = usePatientFlowStore((state) => state.status);
+  const registrationEntry = usePatientFlowStore((state) => state.registrationEntry);
+  const completeRegistration = usePatientFlowStore((state) => state.completeRegistration);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedDeptId, setSelectedDeptId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmiting] = useState(false);
+  const isValidEntry = status === "registration_ready" && !!registrationEntry;
+  const recommendedDepartments = registrationEntry?.recommendedDepartments ?? [];
+  const backPath =
+    registrationEntry?.source === "triage_result" && registrationEntry.sessionId
+      ? patientFlowPaths.triageResult(registrationEntry.sessionId)
+      : patientFlowPaths.home;
 
   useEffect(() => {
-    mockGetRegistrationHandoff("dummy-session").then((data) => {
+    if (!isValidEntry || !registrationEntry) {
+      navigate(patientFlowPaths.home, { replace: true });
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    mockGetRegistrationHandoff(registrationEntry.sessionId ?? "direct-registration").then((data) => {
+      if (cancelled) {
+        return;
+      }
+
+      const recommendedDept = data.departments.find((dept) =>
+        recommendedDepartments.includes(dept.name),
+      );
+
       setDepartments(data.departments);
-      setSelectedDeptId(data.defaultDepartmentId);
+      setSelectedDeptId(recommendedDept?.id ?? data.defaultDepartmentId);
       setLoading(false);
-      
-      // Auto-select tomorrow
+
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       setSelectedDate(formatLocalDate(tomorrow));
     });
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isValidEntry, navigate, recommendedDepartments, registrationEntry]);
+
+  if (!isValidEntry || !registrationEntry) {
+    return null;
+  }
 
   const dates = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date();
@@ -51,10 +89,11 @@ export const RegistrationsNewPage = () => {
     await mockSubmitRegistration({
       departmentId: selectedDeptId,
       date: selectedDate,
-      time: selectedTime
+      time: selectedTime,
     });
     setSubmiting(false);
-    navigate("/registrations");
+    navigate(patientFlowPaths.registrations, { replace: true });
+    completeRegistration();
   };
 
   return (
@@ -62,7 +101,7 @@ export const RegistrationsNewPage = () => {
       {/* Header */}
       <header className="px-4 py-3 bg-white shadow-sm flex items-center sticky top-0 z-10 pt-safe">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(backPath)}
           className="p-2 -ml-2 text-gray-500 hover:text-gray-700 active:bg-gray-100 rounded-full transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +136,7 @@ export const RegistrationsNewPage = () => {
                   }`}
                 >
                   {dept.name}
-                  {dept.id === "dept-1" && (
+                  {recommendedDepartments.includes(dept.name) && (
                     <span className="text-[10px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded ml-2 whitespace-nowrap">AI 推荐</span>
                   )}
                 </button>

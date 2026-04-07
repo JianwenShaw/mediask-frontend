@@ -1,26 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import { mockGetTriageResult, type TriageResult } from "../services/mock/api";
+import { patientFlowPaths, usePatientFlowStore } from "../flow/patient-flow-store";
 
 export const TriageResultPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const [result, setResult] = useState<TriageResult | null>(null);
+  const status = usePatientFlowStore((state) => state.status);
+  const currentSessionId = usePatientFlowStore((state) => state.sessionId);
+  const result = usePatientFlowStore((state) => state.triageResult);
+  const startRegistrationFromTriage = usePatientFlowStore(
+    (state) => state.startRegistrationFromTriage,
+  );
+  const isValidResult =
+    currentSessionId === sessionId && !!result && status !== "triage_high_risk";
 
   useEffect(() => {
-    mockGetTriageResult(sessionId || "").then(setResult);
-  }, [sessionId]);
+    if (!isValidResult) {
+      navigate(patientFlowPaths.home, { replace: true });
+    }
+  }, [isValidResult, navigate]);
 
-  if (!result) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-[#f3fbf7]">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="w-12 h-12 bg-gray-200 rounded-full mb-4"></div>
-          <div className="h-4 w-24 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
+  if (!isValidResult || !result) {
+    return null;
   }
 
   return (
@@ -79,13 +81,16 @@ export const TriageResultPage = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-safe z-50 shadow-[0_-8px_20px_rgba(0,0,0,0.03)] max-w-md mx-auto">
         <div className="flex gap-3">
           <button
-            onClick={() => navigate(`/ai/session/${sessionId}`)}
+            onClick={() => navigate(patientFlowPaths.aiSession(sessionId!))}
             className="flex-1 py-4 text-gray-600 bg-gray-100 rounded-xl font-medium active:bg-gray-200 transition-colors"
           >
             重新咨询
           </button>
           <button
-            onClick={() => navigate("/registrations/new")}
+            onClick={() => {
+              startRegistrationFromTriage(sessionId!, result.recommendedDepartments);
+              navigate(patientFlowPaths.registrationNew);
+            }}
             className="flex-[2] py-4 bg-[#00b96b] text-white rounded-xl font-medium active:bg-[#009e5b] shadow-md shadow-emerald-500/20 transition-all"
           >
             去挂号预约

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { usePatientAuthStore } from "../auth/auth-store";
+import { patientFlowPaths, usePatientFlowStore } from "../flow/patient-flow-store";
 import { mockGetRegistrations } from "../services/mock/api";
 
 export const IndexPage = () => {
@@ -10,8 +11,11 @@ export const IndexPage = () => {
   const [upcomingReg, setUpcomingReg] = useState<any>(null);
   const user = usePatientAuthStore((state) => state.user);
   const logout = usePatientAuthStore((state) => state.clearSession);
+  const startConsultation = usePatientFlowStore((state) => state.startConsultation);
+  const startRegistrationFromHome = usePatientFlowStore((state) => state.startRegistrationFromHome);
   const displayName = user?.displayName || user?.username || "患者";
   const avatarText = displayName.slice(0, 1).toUpperCase();
+  const consultationSessionId = "demo-session";
 
   useEffect(() => {
     mockGetRegistrations().then((data) => {
@@ -42,7 +46,7 @@ export const IndexPage = () => {
           onClick={() => {
             if (window.confirm("确定要退出登录吗？")) {
               logout();
-              navigate("/login", { replace: true });
+              navigate(patientFlowPaths.login, { replace: true });
             }
           }}
           className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 active:bg-gray-100 transition-colors"
@@ -56,7 +60,10 @@ export const IndexPage = () => {
       <div className="px-5 space-y-5">
         {/* 核心功能：AI 问诊 Hero Card */}
         <div 
-          onClick={() => navigate("/ai/session/demo-session")}
+          onClick={() => {
+            startConsultation(consultationSessionId);
+            navigate(patientFlowPaths.aiSession(consultationSessionId));
+          }}
           className="bg-gradient-to-br from-[#00b96b] to-emerald-500 rounded-3xl p-6 text-white shadow-lg shadow-emerald-200 active:scale-[0.98] transition-transform cursor-pointer relative overflow-hidden"
         >
           {/* 装饰图形 */}
@@ -82,14 +89,23 @@ export const IndexPage = () => {
         {/* 快捷功能宫格 */}
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
           <div className="grid grid-cols-4 gap-4">
-            <div onClick={() => navigate("/registrations/new")} className="flex flex-col items-center gap-2 cursor-pointer active:opacity-70">
+            <div
+              onClick={() => {
+                startRegistrationFromHome();
+                navigate(patientFlowPaths.registrationNew);
+              }}
+              className="flex flex-col items-center gap-2 cursor-pointer active:opacity-70"
+            >
               <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
               </div>
               <span className="text-xs font-medium text-gray-700">预约挂号</span>
             </div>
             
-            <div onClick={() => navigate("/registrations")} className="flex flex-col items-center gap-2 cursor-pointer active:opacity-70">
+            <div
+              onClick={() => navigate(patientFlowPaths.registrations)}
+              className="flex flex-col items-center gap-2 cursor-pointer active:opacity-70"
+            >
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
               </div>
@@ -121,7 +137,7 @@ export const IndexPage = () => {
           
           {upcomingReg ? (
             <div 
-              onClick={() => navigate("/registrations")}
+              onClick={() => navigate(patientFlowPaths.registrations)}
               className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between active:bg-emerald-50 transition-colors cursor-pointer"
             >
               <div>

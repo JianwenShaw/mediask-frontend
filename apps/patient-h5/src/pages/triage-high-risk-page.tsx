@@ -1,7 +1,25 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useParams } from "react-router";
+
+import { patientFlowPaths, usePatientFlowStore } from "../flow/patient-flow-store";
 
 export const TriageHighRiskPage = () => {
+  const { sessionId } = useParams();
   const navigate = useNavigate();
+  const status = usePatientFlowStore((state) => state.status);
+  const currentSessionId = usePatientFlowStore((state) => state.sessionId);
+  const resetFlow = usePatientFlowStore((state) => state.resetFlow);
+
+  useEffect(() => {
+    if (status !== "triage_high_risk" || currentSessionId !== sessionId) {
+      navigate(patientFlowPaths.home, { replace: true });
+    }
+  }, [currentSessionId, navigate, sessionId, status]);
+
+  if (status !== "triage_high_risk" || currentSessionId !== sessionId) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fff5f5] px-4 pt-6 pb-28">
@@ -43,7 +61,10 @@ export const TriageHighRiskPage = () => {
           </a>
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              resetFlow();
+              navigate(patientFlowPaths.home, { replace: true });
+            }}
             className="min-h-[48px] rounded-xl bg-red-50 px-4 py-3 text-base font-medium text-red-600 active:bg-red-100"
           >
             返回首页

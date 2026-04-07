@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
+import {
+  getTriageCompletionPath,
+  patientFlowPaths,
+  usePatientFlowStore,
+} from "../flow/patient-flow-store";
 import { mockGetTriageResult } from "../services/mock/api";
 
 type Message = {
@@ -28,11 +33,22 @@ const QUICK_REPLIES = ["我有些发热", "头晕恶心", "胸痛", "一直咳�
 export const AiSessionPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
+  const startConsultation = usePatientFlowStore((state) => state.startConsultation);
+  const completeTriage = usePatientFlowStore((state) => state.completeTriage);
+  const resetFlow = usePatientFlowStore((state) => state.resetFlow);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [replyCount, setReplyCount] = useState(0);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sessionId) {
+      return;
+    }
+
+    startConsultation(sessionId);
+  }, [sessionId, startConsultation]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -81,13 +97,10 @@ export const AiSessionPage = () => {
       await simulateStream(MOCK_REPLIES[1], async () => {
         // Mock checking for high risk vs normal
         const isHighRisk = userMsg.includes("胸痛") || userMsg.includes("晕倒");
-        const triage = await mockGetTriageResult(sessionId!, isHighRisk ? 'high' : undefined);
-        
-        if (triage.nextAction === "EMERGENCY_OFFLINE") {
-          navigate(`/triage/high-risk/${sessionId}`);
-        } else {
-          navigate(`/triage/result/${sessionId}`);
-        }
+        const triage = await mockGetTriageResult(sessionId!, isHighRisk ? "high" : undefined);
+
+        completeTriage(sessionId!, triage);
+        navigate(getTriageCompletionPath(sessionId!, triage), { replace: true });
       });
     }
   };
@@ -114,7 +127,8 @@ export const AiSessionPage = () => {
           </div>
         </div>
         <button className="text-sm text-gray-500 hover:text-gray-700 font-medium bg-gray-50 px-3 py-1.5 rounded-full active:scale-95 transition-transform" onClick={() => {
-          navigate("/");
+          resetFlow();
+          navigate(patientFlowPaths.home, { replace: true });
         }}>返回首页</button>
       </header>
 
