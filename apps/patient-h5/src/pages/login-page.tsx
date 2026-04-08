@@ -13,7 +13,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const completeLogin = usePatientAuthStore((state) => state.completeLogin);
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!username.trim() || !password) return;
 
