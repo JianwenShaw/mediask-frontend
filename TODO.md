@@ -60,6 +60,12 @@
 
 ### Routes & Pages
 
+### UI/UX Refinements (docs/08A-DESIGN_GUIDELINES.md)
+- [ ] **Markdown & Security**: Implement actual Markdown rendering and XSS sanitization (`react-markdown`, `dompurify` or `rehype-sanitize`) in `ai-session-page.tsx`.
+- [ ] **Active States**: Add tap feedback (`active:bg-green-600`, `active:scale-95`, etc.) to all interactive elements across H5 pages.
+- [ ] **Skeleton Screens**: Ensure network request loading states use skeleton (`animate-pulse`) instead of full-page spinners, especially in `triage-result-page.tsx` and `registrations-page.tsx`.
+- [ ] **Typing Cursor**: Ensure the blinking cursor works correctly with the real SSE stream and Markdown rendering.
+
 - [x] **Login page** (`/login`)
   - [x] Connect `/api/v1/auth/login`
   - [x] Connect `/api/v1/auth/me`
@@ -68,7 +74,7 @@
 - [ ] **AI consultation page** (`/ai/session/:sessionId`)
   - [ ] Connect `/api/v1/ai/chat/stream` using `connectAiChatStream`
   - [ ] Stream answer rendering with blinking cursor for typing effect
-  - [x] Markdown safe rendering (sanitize HTML) and mobile typography
+  - [ ] FIX: Markdown safe rendering (sanitize HTML) and mobile typography (Needs real markdown parser and sanitization)
   - [ ] Consume `meta.triageResult` as the only structured truth
   - [ ] Preserve history and `requestId` on failure, with local "retry" button to avoid white screen
 

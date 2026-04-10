@@ -137,3 +137,42 @@ export type DataAccessLog = {
   purpose: string;
   createdAt: string;
 };
+
+export type ClinicSession = {
+  clinicSessionId: number;
+  departmentId: number;
+  departmentName: string;
+  doctorId?: number;
+  doctorName?: string;
+  sessionDate: string; // yyyy-MM-dd
+  periodCode: string; // MORNING, AFTERNOON, etc.
+  clinicType: string;
+  remainingCount: number;
+  fee: number;
+};
+
+export type RegistrationStatus = "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+
+export type Registration = {
+  registrationId: number;
+  orderNo: string;
+  status: RegistrationStatus;
+  createdAt: string;
+  sourceAiSessionId?: number;
+};
+
+export type EncounterStatus = "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+export type Encounter = {
+  encounterId: number;
+  registrationId: number;
+  patientUserId: number;
+  patientName: string;
+  departmentId: number;
+  departmentName: string;
+  sessionDate: string;
+  periodCode: string;
+  encounterStatus: EncounterStatus;
+  startedAt?: string;
+  endedAt?: string;
+};

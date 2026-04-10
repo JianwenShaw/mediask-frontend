@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import type { Registration } from "@mediask/shared-types";
 
 import { usePatientAuthStore } from "../auth/auth-store";
 import { patientFlowPaths, usePatientFlowStore } from "../flow/patient-flow-store";
-import { mockGetRegistrations } from "../services/mock/api";
+import { patientApi } from "../lib/api";
+
+const formatDateTime = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return {
+    date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+    time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
+  };
+};
 
 export const IndexPage = () => {
   const navigate = useNavigate();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [upcomingReg, setUpcomingReg] = useState<any>(null);
+  const [upcomingReg, setUpcomingReg] = useState<Registration | null>(null);
   const user = usePatientAuthStore((state) => state.user);
   const logout = usePatientAuthStore((state) => state.clearSession);
   const startConsultation = usePatientFlowStore((state) => state.startConsultation);
@@ -18,12 +26,13 @@ export const IndexPage = () => {
   const consultationSessionId = "demo-session";
 
   useEffect(() => {
-    mockGetRegistrations().then((data) => {
-      const pending = data.find((item) => item.status === "PENDING");
+    patientApi.get<{ items: Registration[] }>('/api/v1/registrations').then((res) => {
+      const items = res.data?.items ?? [];
+      const pending = items.find((item) => item.status === "PENDING_PAYMENT" || item.status === "CONFIRMED");
       if (pending) {
         setUpcomingReg(pending);
       }
-    });
+    }).catch(err => console.error(err));
   }, []);
 
   return (
@@ -142,10 +151,10 @@ export const IndexPage = () => {
             >
               <div>
                 <div className="text-emerald-700 font-medium mb-1">
-                  {upcomingReg.departmentName} - 门诊预约
+                  门诊预约: {upcomingReg.orderNo}
                 </div>
                 <div className="text-sm text-emerald-600/80">
-                  {upcomingReg.date} {upcomingReg.time}
+                  {formatDateTime(upcomingReg.createdAt).date} {formatDateTime(upcomingReg.createdAt).time}
                 </div>
               </div>
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-emerald-500">

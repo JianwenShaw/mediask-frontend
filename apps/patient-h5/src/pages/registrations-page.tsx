@@ -1,25 +1,51 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import type { Registration } from "@mediask/shared-types";
 
-import { mockGetRegistrations } from "../services/mock/api";
+import { patientApi } from "../lib/api";
+
+const formatDateTime = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return {
+    date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+    time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
+  };
+};
 
 export const RegistrationsPage = () => {
   const navigate = useNavigate();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [registrations, setRegistrations] = useState<any[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"ALL" | "PENDING">("ALL");
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
-    mockGetRegistrations().then((data) => {
-      setRegistrations(data);
-      setLoading(false);
-    });
+
+    const fetchRegistrations = async () => {
+      try {
+        // Backend returns `{ items: Registration[] }`
+        const result = await patientApi.get<{ items: Registration[] }>('/api/v1/registrations');
+        if (cancelled) return;
+        setRegistrations(result.data?.items ?? []);
+      } catch (err) {
+        console.error("Failed to load registrations", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchRegistrations();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredRegistrations = registrations.filter((reg) => {
-    if (activeTab === "PENDING") return reg.status === "PENDING";
+    if (activeTab === "PENDING") {
+      return reg.status === "PENDING_PAYMENT" || reg.status === "CONFIRMED";
+    }
     return true;
   });
 
@@ -81,40 +107,59 @@ export const RegistrationsPage = () => {
             </div>
           ))
         ) : filteredRegistrations.length > 0 ? (
-          filteredRegistrations.map((reg) => (
-            <div key={reg.id} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-              <div className="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
-                <div className="text-gray-500 text-sm font-medium">{reg.date} {reg.time}</div>
-                <div
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                    reg.status === "PENDING"
-                      ? "bg-blue-50 text-blue-600"
-                      : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {reg.status === "PENDING" ? "待就诊" : "已完成"}
-                </div>
-              </div>
+          filteredRegistrations.map((reg) => {
+            const isPending = reg.status === "PENDING_PAYMENT" || reg.status === "CONFIRMED";
+            const dt = formatDateTime(reg.createdAt);
+            // We use orderNo or a placeholder if department name is missing in Registration DTO
+            const displayTitle = "挂号订单: " + reg.orderNo;
+            
+            const getStatusText = (status: string) => {
+              switch (status) {
+                case "PENDING_PAYMENT": return "待支付";
+                case "CONFIRMED": return "待就诊";
+                case "CANCELLED": return "已取消";
+                case "COMPLETED": return "已完成";
+                default: return status;
+              }
+            };
 
-              <div className="mb-4">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{reg.departmentName}</h3>
-                <p className="text-sm text-gray-500">
-                  就诊人：张三 <span className="mx-2 text-gray-300">|</span> 普通门诊
-                </p>
-              </div>
-
-              {reg.status === "PENDING" && (
-                <div className="flex gap-3 mt-2 pt-3 border-t border-gray-50">
-                  <button className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium active:bg-gray-50 transition-colors">
-                    取消预约
-                  </button>
-                  <button className="flex-1 py-2.5 bg-[#00b96b] text-white rounded-xl text-sm font-medium active:bg-[#009e5b] transition-colors">
-                    查看详情
-                  </button>
+            return (
+              <div key={reg.registrationId} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <div className="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                  <div className="text-gray-500 text-sm font-medium">{dt.date} {dt.time}</div>
+                  <div
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      isPending
+                        ? "bg-blue-50 text-blue-600"
+                        : reg.status === "CANCELLED" 
+                        ? "bg-gray-100 text-gray-400"
+                        : "bg-emerald-50 text-emerald-600"
+                    }`}
+                  >
+                    {getStatusText(reg.status)}
+                  </div>
                 </div>
-              )}
-            </div>
-          ))
+
+                <div className="mb-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{displayTitle}</h3>
+                  <p className="text-sm text-gray-500">
+                    就诊人：本人 <span className="mx-2 text-gray-300">|</span> 门诊
+                  </p>
+                </div>
+
+                {isPending && (
+                  <div className="flex gap-3 mt-2 pt-3 border-t border-gray-50">
+                    <button className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium active:bg-gray-50 transition-colors">
+                      取消预约
+                    </button>
+                    <button className="flex-1 py-2.5 bg-[#00b96b] text-white rounded-xl text-sm font-medium active:bg-[#009e5b] transition-colors">
+                      查看详情
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })
         ) : (
           // Empty State
           <div className="py-20 flex flex-col items-center justify-center text-gray-400">

@@ -38,27 +38,3 @@ export const mockGetTriageResult = async (sessionId: string, risk?: 'high'): Pro
     citations: ["上呼吸道感染常见症状处理原则", "发热患者就诊指引"]
   };
 };
-
-export const mockGetRegistrationHandoff = async (sessionId: string) => {
-  await delay(1200);
-  return {
-    departments: [
-      { id: "dept-1", name: "呼吸内科", available: true },
-      { id: "dept-2", name: "普通内科", available: true }
-    ],
-    defaultDepartmentId: "dept-1"
-  };
-};
-
-export const mockSubmitRegistration = async (data: any) => {
-  await delay(1000);
-  return { success: true, registrationId: `REG-${Date.now()}` };
-};
-
-export const mockGetRegistrations = async () => {
-  await delay(800);
-  return [
-    { id: "REG-001", departmentName: "呼吸内科", date: "2024-05-20", time: "上午", status: "PENDING" },
-    { id: "REG-002", departmentName: "消化内科", date: "2024-05-18", time: "下午", status: "COMPLETED" },
-  ];
-};
