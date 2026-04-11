@@ -11,6 +11,8 @@ import { IndexPage } from "./pages/index-page";
 import { LoginPage } from "./pages/login-page";
 import { PrescriptionsPage } from "./pages/prescriptions-page";
 import { WorkbenchPage } from "./pages/workbench-page";
+import { KnowledgeBasesPage } from "./pages/knowledge-bases-page";
+import { KnowledgeBaseDetailPage } from "./pages/knowledge-base-detail-page";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +81,22 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["ADMIN"]}>
             <AuditPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "knowledge-bases",
+        element: (
+          <ProtectedRoute allowedRoles={["ADMIN", "DOCTOR"]}>
+            <KnowledgeBasesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "knowledge-bases/:id",
+        element: (
+          <ProtectedRoute allowedRoles={["ADMIN", "DOCTOR"]}>
+            <KnowledgeBaseDetailPage />
           </ProtectedRoute>
         ),
       },

@@ -1,8 +1,16 @@
 import type {
   AiChatRequest,
   AiChatStreamMeta,
+  KnowledgeBase,
+  KnowledgeBaseCreateRequest,
+  KnowledgeBaseListQuery,
+  KnowledgeBaseUpdateRequest,
+  KnowledgeDocument,
+  KnowledgeDocumentImportResponse,
+  KnowledgeDocumentListQuery,
   LoginRequest,
   LoginResponse,
+  PageData,
   Result,
   UserContext,
 } from "@mediask/shared-types";
@@ -278,6 +286,26 @@ export const connectAiChatStream = async ({
 export const createApiClient = (options: ApiClientOptions = {}) => {
   const { baseUrl = "", getToken, onUnauthorized, onForbidden } = options;
 
+  const buildQueryString = (query?: Record<string, string | number | undefined>) => {
+    if (!query) {
+      return "";
+    }
+
+    const searchParams = new URLSearchParams();
+
+    for (const [key, value] of Object.entries(query)) {
+      if (value === undefined) {
+        continue;
+      }
+
+      searchParams.set(key, String(value));
+    }
+
+    const queryString = searchParams.toString();
+
+    return queryString ? `?${queryString}` : "";
+  };
+
   async function request<T>(
     input: string,
     init?: RequestInit,
@@ -289,7 +317,7 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
       headers.set("Authorization", `Bearer ${token}`);
     }
 
-    if (init?.body && !headers.has("Content-Type")) {
+    if (init?.body && !(init.body instanceof FormData) && !headers.has("Content-Type")) {
       headers.set("Content-Type", "application/json");
     }
 
@@ -322,6 +350,16 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
     get<T>(input: string, init?: RequestInit) {
       return request<T>(input, { ...init, method: "GET" });
     },
+    patch<T>(input: string, body?: unknown, init?: RequestInit) {
+      return request<T>(input, {
+        ...init,
+        method: "PATCH",
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    },
+    delete<T>(input: string, init?: RequestInit) {
+      return request<T>(input, { ...init, method: "DELETE" });
+    },
     post<T>(input: string, body?: unknown, init?: RequestInit) {
       return request<T>(input, {
         ...init,
@@ -340,6 +378,57 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
       return request<UserContext>("/api/v1/auth/me", {
         ...init,
         method: "GET",
+      });
+    },
+    listKnowledgeBases(query: KnowledgeBaseListQuery = {}, init?: RequestInit) {
+      return request<PageData<KnowledgeBase>>(
+        `/api/v1/admin/knowledge-bases${buildQueryString(query)}`,
+        {
+          ...init,
+          method: "GET",
+        },
+      );
+    },
+    createKnowledgeBase(body: KnowledgeBaseCreateRequest, init?: RequestInit) {
+      return request<KnowledgeBase>("/api/v1/admin/knowledge-bases", {
+        ...init,
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+    },
+    updateKnowledgeBase(id: number, body: KnowledgeBaseUpdateRequest, init?: RequestInit) {
+      return request<KnowledgeBase>(`/api/v1/admin/knowledge-bases/${id}`, {
+        ...init,
+        method: "PATCH",
+        body: JSON.stringify(body),
+      });
+    },
+    deleteKnowledgeBase(id: number, init?: RequestInit) {
+      return request<void>(`/api/v1/admin/knowledge-bases/${id}`, {
+        ...init,
+        method: "DELETE",
+      });
+    },
+    listKnowledgeDocuments(query: KnowledgeDocumentListQuery, init?: RequestInit) {
+      return request<PageData<KnowledgeDocument>>(
+        `/api/v1/admin/knowledge-documents${buildQueryString(query)}`,
+        {
+          ...init,
+          method: "GET",
+        },
+      );
+    },
+    importKnowledgeDocument(formData: FormData, init?: RequestInit) {
+      return request<KnowledgeDocumentImportResponse>("/api/v1/admin/knowledge-documents/import", {
+        ...init,
+        method: "POST",
+        body: formData,
+      });
+    },
+    deleteKnowledgeDocument(id: number, init?: RequestInit) {
+      return request<void>(`/api/v1/admin/knowledge-documents/${id}`, {
+        ...init,
+        method: "DELETE",
       });
     },
     request,

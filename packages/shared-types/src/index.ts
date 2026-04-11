@@ -8,6 +8,15 @@ export type Result<T> = {
 
 export type ApiResult<T> = Result<T>;
 
+export type PageData<T> = {
+  items: T[];
+  pageNum: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+};
+
 export type AuthRole = "PATIENT" | "DOCTOR" | "ADMIN";
 
 export type RiskLevel = "low" | "medium" | "high";
@@ -175,4 +184,63 @@ export type Encounter = {
   encounterStatus: EncounterStatus;
   startedAt?: string;
   endedAt?: string;
+};
+
+export type KnowledgeBaseOwnerType = "SYSTEM" | "DEPARTMENT" | "TOPIC";
+
+export type KnowledgeBaseStatus = "ENABLED" | "DISABLED";
+
+export type KnowledgeBase = {
+  id: number;
+  kbCode: string;
+  name: string;
+  ownerType: KnowledgeBaseOwnerType;
+  ownerDeptId?: number;
+  visibility: string;
+  status: KnowledgeBaseStatus;
+  docCount: number;
+};
+
+export type KnowledgeBaseListQuery = {
+  keyword?: string;
+  pageNum?: number;
+  pageSize?: number;
+};
+
+export type KnowledgeBaseCreateRequest = {
+  name: string;
+  kbCode: string;
+  ownerType: KnowledgeBaseOwnerType;
+  ownerDeptId?: number;
+  visibility: string;
+};
+
+export type KnowledgeBaseUpdateRequest = {
+  name?: string;
+  ownerType?: KnowledgeBaseOwnerType;
+  ownerDeptId?: number;
+  visibility?: string;
+  status?: KnowledgeBaseStatus;
+};
+
+export type KnowledgeDocument = {
+  id: number;
+  documentUuid: string;
+  title: string;
+  sourceType: string;
+  documentStatus: string;
+  chunkCount: number;
+};
+
+export type KnowledgeDocumentListQuery = {
+  knowledgeBaseId: number;
+  pageNum?: number;
+  pageSize?: number;
+};
+
+export type KnowledgeDocumentImportResponse = {
+  documentId: number;
+  documentUuid: string;
+  chunkCount: number;
+  documentStatus: string;
 };

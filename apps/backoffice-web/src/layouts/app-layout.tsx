@@ -9,6 +9,7 @@ import {
   MenuUnfoldOutlined,
   SearchOutlined,
   UserOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
 import { Avatar, Badge, Breadcrumb, Button, ConfigProvider, Dropdown, Input, Layout, Menu, Space, Typography, theme } from "antd";
 import { useState } from "react";
@@ -66,6 +67,13 @@ export const AppLayout = () => {
           label: <Link to="/audit">审计日志</Link>,
         }
       : null,
+    canAccessAdminPages || canAccessDoctorPages
+      ? {
+          key: "4",
+          icon: <DatabaseOutlined />,
+          label: <Link to="/knowledge-bases">知识库管理</Link>,
+        }
+      : null,
   ].filter((item): item is NonNullable<typeof item> => item !== null);
 
   // Determine current active menu key based on pathname
@@ -84,6 +92,9 @@ export const AppLayout = () => {
   } else if (location.pathname.startsWith("/audit")) {
     selectedKey = "3";
     breadcrumbName = "审计日志 (Audit)";
+  } else if (location.pathname.startsWith("/knowledge-bases")) {
+    selectedKey = "4";
+    breadcrumbName = "知识库管理 (Knowledge Bases)";
   }
 
   return (
