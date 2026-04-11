@@ -396,14 +396,14 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
         body: JSON.stringify(body),
       });
     },
-    updateKnowledgeBase(id: number, body: KnowledgeBaseUpdateRequest, init?: RequestInit) {
+    updateKnowledgeBase(id: string, body: KnowledgeBaseUpdateRequest, init?: RequestInit) {
       return request<KnowledgeBase>(`/api/v1/admin/knowledge-bases/${id}`, {
         ...init,
         method: "PATCH",
         body: JSON.stringify(body),
       });
     },
-    deleteKnowledgeBase(id: number, init?: RequestInit) {
+    deleteKnowledgeBase(id: string, init?: RequestInit) {
       return request<void>(`/api/v1/admin/knowledge-bases/${id}`, {
         ...init,
         method: "DELETE",
@@ -425,7 +425,7 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
         body: formData,
       });
     },
-    deleteKnowledgeDocument(id: number, init?: RequestInit) {
+    deleteKnowledgeDocument(id: string, init?: RequestInit) {
       return request<void>(`/api/v1/admin/knowledge-documents/${id}`, {
         ...init,
         method: "DELETE",

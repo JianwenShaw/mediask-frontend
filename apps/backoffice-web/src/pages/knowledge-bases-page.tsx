@@ -45,7 +45,7 @@ type KnowledgeBaseFormValues = {
   name: string;
   kbCode?: string;
   ownerType: KnowledgeBaseOwnerType;
-  ownerDeptId?: number | null;
+  ownerDeptId?: string | null;
   visibility: string;
   status?: KnowledgeBaseStatus;
 };
@@ -67,7 +67,7 @@ const statusOptions: { label: string; value: KnowledgeBaseStatus }[] = [
   { label: "停用", value: "DISABLED" },
 ];
 
-const normalizeOwnerDeptId = (ownerType: KnowledgeBaseOwnerType, ownerDeptId?: number | null) => {
+const normalizeOwnerDeptId = (ownerType: KnowledgeBaseOwnerType, ownerDeptId?: string | null) => {
   if (ownerType !== "DEPARTMENT" || ownerDeptId == null) {
     return undefined;
   }

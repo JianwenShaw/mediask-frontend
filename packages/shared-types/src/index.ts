@@ -30,21 +30,21 @@ export type NextAction =
   | "MANUAL_SUPPORT";
 
 export type Citation = {
-  chunkId: number;
+  chunkId: string;
   retrievalRank: number;
   fusionScore: number;
   snippet: string;
 };
 
 export type RecommendedDepartment = {
-  departmentId: number;
+  departmentId: string;
   departmentName: string;
   priority: number;
   reason: string;
 };
 
 export type UserContext = {
-  userId: number;
+  userId: string;
   username: string;
   displayName: string;
   roles: string[];
@@ -64,9 +64,9 @@ export type LoginResponse = {
 };
 
 export type AiChatRequest = {
-  sessionId: number | null;
+  sessionId: string | null;
   message: string;
-  departmentId: number | null;
+  departmentId: string | null;
   sceneType: "PRE_CONSULTATION";
   useStream: boolean;
 };
@@ -82,46 +82,46 @@ export type TriageResult = {
 };
 
 export type AiChatResponse = {
-  sessionId: number;
-  turnId: number;
+  sessionId: string;
+  turnId: string;
   answer: string;
   triageResult: TriageResult;
 };
 
 export type AiChatStreamMeta = {
-  sessionId: number;
-  turnId: number;
+  sessionId: string;
+  turnId: string;
   triageResult: TriageResult;
 };
 
 export type AiSessionTurn = {
-  turnId: number;
+  turnId: string;
   role: string;
   content: string;
   createdAt: string;
 };
 
 export type AiSessionDetail = {
-  sessionId: number;
+  sessionId: string;
   sceneType: "PRE_CONSULTATION";
   turns: AiSessionTurn[];
 };
 
 export type RegistrationHandoff = {
-  sessionId: number;
-  recommendedDepartmentId?: number;
+  sessionId: string;
+  recommendedDepartmentId?: string;
   recommendedDepartmentName?: string;
   chiefComplaintSummary?: string;
   suggestedVisitType?: string;
   registrationQuery?: {
-    departmentId?: number;
+    departmentId?: string;
     dateFrom?: string;
   };
 };
 
 export type EncounterAiSummary = {
-  encounterId: number;
-  sessionId: number;
+  encounterId: string;
+  sessionId: string;
   chiefComplaintSummary: string;
   structuredSummary: string;
   riskLevel: RiskLevel;
@@ -130,8 +130,8 @@ export type EncounterAiSummary = {
 };
 
 export type AuditEvent = {
-  eventId: number;
-  userId: number;
+  eventId: string;
+  userId: string;
   action: string;
   resourceType: string;
   resourceId: string;
@@ -139,8 +139,8 @@ export type AuditEvent = {
 };
 
 export type DataAccessLog = {
-  logId: number;
-  userId: number;
+  logId: string;
+  userId: string;
   resourceType: string;
   resourceId: string;
   purpose: string;
@@ -148,10 +148,10 @@ export type DataAccessLog = {
 };
 
 export type ClinicSession = {
-  clinicSessionId: number;
-  departmentId: number;
+  clinicSessionId: string;
+  departmentId: string;
   departmentName: string;
-  doctorId?: number;
+  doctorId?: string;
   doctorName?: string;
   sessionDate: string; // yyyy-MM-dd
   periodCode: string; // MORNING, AFTERNOON, etc.
@@ -163,21 +163,21 @@ export type ClinicSession = {
 export type RegistrationStatus = "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
 
 export type Registration = {
-  registrationId: number;
+  registrationId: string;
   orderNo: string;
   status: RegistrationStatus;
   createdAt: string;
-  sourceAiSessionId?: number;
+  sourceAiSessionId?: string;
 };
 
 export type EncounterStatus = "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 
 export type Encounter = {
-  encounterId: number;
-  registrationId: number;
-  patientUserId: number;
+  encounterId: string;
+  registrationId: string;
+  patientUserId: string;
   patientName: string;
-  departmentId: number;
+  departmentId: string;
   departmentName: string;
   sessionDate: string;
   periodCode: string;
@@ -191,11 +191,11 @@ export type KnowledgeBaseOwnerType = "SYSTEM" | "DEPARTMENT" | "TOPIC";
 export type KnowledgeBaseStatus = "ENABLED" | "DISABLED";
 
 export type KnowledgeBase = {
-  id: number;
+  id: string;
   kbCode: string;
   name: string;
   ownerType: KnowledgeBaseOwnerType;
-  ownerDeptId?: number;
+  ownerDeptId?: string;
   visibility: string;
   status: KnowledgeBaseStatus;
   docCount: number;
@@ -211,20 +211,20 @@ export type KnowledgeBaseCreateRequest = {
   name: string;
   kbCode: string;
   ownerType: KnowledgeBaseOwnerType;
-  ownerDeptId?: number;
+  ownerDeptId?: string;
   visibility: string;
 };
 
 export type KnowledgeBaseUpdateRequest = {
   name?: string;
   ownerType?: KnowledgeBaseOwnerType;
-  ownerDeptId?: number;
+  ownerDeptId?: string;
   visibility?: string;
   status?: KnowledgeBaseStatus;
 };
 
 export type KnowledgeDocument = {
-  id: number;
+  id: string;
   documentUuid: string;
   title: string;
   sourceType: string;
@@ -233,13 +233,13 @@ export type KnowledgeDocument = {
 };
 
 export type KnowledgeDocumentListQuery = {
-  knowledgeBaseId: number;
+  knowledgeBaseId: string;
   pageNum?: number;
   pageSize?: number;
 };
 
 export type KnowledgeDocumentImportResponse = {
-  documentId: number;
+  documentId: string;
   documentUuid: string;
   chunkCount: number;
   documentStatus: string;

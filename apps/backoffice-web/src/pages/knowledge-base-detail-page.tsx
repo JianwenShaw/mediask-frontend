@@ -45,7 +45,7 @@ const ownerTypeColorMap: Record<KnowledgeBaseOwnerType, string> = {
   TOPIC: "cyan",
 };
 
-const loadKnowledgeBaseById = async (knowledgeBaseId: number) => {
+const loadKnowledgeBaseById = async (knowledgeBaseId: string) => {
   let currentPage = 1;
 
   while (true) {
@@ -89,7 +89,7 @@ const renderDocumentStatus = (status: string) => {
 export const KnowledgeBaseDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const knowledgeBaseId = Number(id);
+  const knowledgeBaseId = id || "";
 
   const [activeTab, setActiveTab] = useState("overview");
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | null>(null);
@@ -102,7 +102,7 @@ export const KnowledgeBaseDetailPage = () => {
   const [docPageSize, setDocPageSize] = useState(10);
   const [docTotal, setDocTotal] = useState(0);
 
-  const isValidKnowledgeBaseId = Number.isInteger(knowledgeBaseId) && knowledgeBaseId > 0;
+  const isValidKnowledgeBaseId = Boolean(knowledgeBaseId);
 
   const loadKnowledgeBase = async () => {
     if (!isValidKnowledgeBaseId) {
@@ -176,7 +176,7 @@ export const KnowledgeBaseDetailPage = () => {
     }
   };
 
-  const handleDeleteDocument = async (documentId: number) => {
+  const handleDeleteDocument = async (documentId: string) => {
     try {
       await backofficeApi.deleteKnowledgeDocument(documentId);
       void message.success("文档删除成功");
