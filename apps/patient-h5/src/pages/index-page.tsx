@@ -23,7 +23,6 @@ export const IndexPage = () => {
   const startRegistrationFromHome = usePatientFlowStore((state) => state.startRegistrationFromHome);
   const displayName = user?.displayName || user?.username || "患者";
   const avatarText = displayName.slice(0, 1).toUpperCase();
-  const consultationSessionId = "demo-session";
 
   useEffect(() => {
     patientApi.get<{ items: Registration[] }>('/api/v1/registrations').then((res) => {
@@ -70,8 +69,8 @@ export const IndexPage = () => {
         {/* 核心功能：AI 问诊 Hero Card */}
         <div 
           onClick={() => {
-            startConsultation(consultationSessionId);
-            navigate(patientFlowPaths.aiSession(consultationSessionId));
+            startConsultation("new");
+            navigate(patientFlowPaths.aiSession("new"));
           }}
           className="bg-gradient-to-br from-[#00b96b] to-emerald-500 rounded-3xl p-6 text-white shadow-lg shadow-emerald-200 active:scale-[0.98] transition-transform cursor-pointer relative overflow-hidden"
         >
@@ -121,11 +120,11 @@ export const IndexPage = () => {
               <span className="text-xs font-medium text-gray-700">我的挂号</span>
             </div>
 
-            <div onClick={() => alert("病历功能暂未开放")} className="flex flex-col items-center gap-2 cursor-pointer active:opacity-70">
+            <div onClick={() => navigate(patientFlowPaths.aiSessions)} className="flex flex-col items-center gap-2 cursor-pointer active:opacity-70">
               <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
               </div>
-              <span className="text-xs font-medium text-gray-700">门诊病历</span>
+              <span className="text-xs font-medium text-gray-700">问诊记录</span>
             </div>
 
             <div onClick={() => alert("处方功能暂未开放")} className="flex flex-col items-center gap-2 cursor-pointer active:opacity-70">

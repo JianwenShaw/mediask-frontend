@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 
 import { AppLayout } from "./layouts/app-layout";
 import { AiSessionPage } from "./pages/ai-session-page";
+import { AiSessionsPage } from "./pages/ai-sessions-page";
 import { IndexPage } from "./pages/index-page";
 import { LoginPage } from "./pages/login-page";
 import { RegistrationsNewPage } from "./pages/registrations-new-page";
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <IndexPage /> },
       { path: "login", element: <LoginPage /> },
+      { path: "ai/sessions", element: <AiSessionsPage /> },
       { path: "ai/session/:sessionId", element: <AiSessionPage /> },
       { path: "triage/result/:sessionId", element: <TriageResultPage /> },
       {

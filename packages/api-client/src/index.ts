@@ -1,6 +1,9 @@
 import type {
   AiChatRequest,
+  AiChatResponse,
   AiChatStreamMeta,
+  AiSession,
+  AiSessionDetail,
   KnowledgeBase,
   KnowledgeBaseCreateRequest,
   KnowledgeBaseListQuery,
@@ -12,6 +15,7 @@ import type {
   LoginResponse,
   PageData,
   Result,
+  TriageResult,
   UserContext,
 } from "@mediask/shared-types";
 
@@ -133,10 +137,14 @@ const parseSseEvent = (block: string): AiChatStreamEvent | null => {
   }
 
   if (eventName === "meta") {
-    return {
-      event: "meta",
-      data: JSON.parse(data) as AiChatStreamMeta,
-    };
+    try {
+      return {
+        event: "meta",
+        data: JSON.parse(data) as AiChatStreamMeta,
+      };
+    } catch {
+      return null;
+    }
   }
 
   if (eventName === "end") {
@@ -146,10 +154,17 @@ const parseSseEvent = (block: string): AiChatStreamEvent | null => {
   }
 
   if (eventName === "error") {
-    return {
-      event: "error",
-      data: JSON.parse(data) as AiChatStreamErrorData,
-    };
+    try {
+      return {
+        event: "error",
+        data: JSON.parse(data) as AiChatStreamErrorData,
+      };
+    } catch {
+      return {
+        event: "error",
+        data: { msg: data || "Unknown stream error" },
+      };
+    }
   }
 
   return null;
@@ -376,6 +391,31 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
     },
     getCurrentUser(init?: RequestInit) {
       return request<UserContext>("/api/v1/auth/me", {
+        ...init,
+        method: "GET",
+      });
+    },
+    sendAiChat(body: AiChatRequest, init?: RequestInit) {
+      return request<AiChatResponse>("/api/v1/ai/chat", {
+        ...init,
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+    },
+    getAiSessions(init?: RequestInit) {
+      return request<{ items: AiSession[] }>(`/api/v1/ai/sessions`, {
+        ...init,
+        method: "GET",
+      });
+    },
+    getAiSessionDetail(sessionId: string, init?: RequestInit) {
+      return request<AiSessionDetail>(`/api/v1/ai/sessions/${sessionId}`, {
+        ...init,
+        method: "GET",
+      });
+    },
+    getAiSessionTriageResult(sessionId: string, init?: RequestInit) {
+      return request<TriageResult>(`/api/v1/ai/sessions/${sessionId}/triage-result`, {
         ...init,
         method: "GET",
       });

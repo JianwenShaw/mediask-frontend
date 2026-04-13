@@ -75,10 +75,10 @@ export type TriageResult = {
   riskLevel: RiskLevel;
   guardrailAction: GuardrailAction;
   nextAction: NextAction;
-  recommendedDepartments: RecommendedDepartment[];
+  recommendedDepartments?: RecommendedDepartment[];
   chiefComplaintSummary?: string;
   careAdvice?: string;
-  citations: Citation[];
+  citations?: Citation[];
 };
 
 export type AiChatResponse = {
@@ -94,16 +94,35 @@ export type AiChatStreamMeta = {
   triageResult: TriageResult;
 };
 
-export type AiSessionTurn = {
-  turnId: string;
+export type AiMessage = {
   role: string;
   content: string;
   createdAt: string;
 };
 
-export type AiSessionDetail = {
+export type AiSessionTurn = {
+  turnId: string;
+  turnNo: number;
+  turnStatus: string;
+  startedAt: string;
+  completedAt?: string;
+  errorCode?: string;
+  errorMessage?: string;
+  messages: AiMessage[];
+};
+
+export type AiSession = {
   sessionId: string;
-  sceneType: "PRE_CONSULTATION";
+  sceneType: string;
+  status: string;
+  departmentId?: string;
+  chiefComplaintSummary?: string;
+  summary?: string;
+  startedAt: string;
+  endedAt?: string;
+};
+
+export type AiSessionDetail = AiSession & {
   turns: AiSessionTurn[];
 };
 

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { TriageResult } from "../services/mock/api";
+import type { TriageResult } from "@mediask/shared-types";
 
 const STORAGE_KEY = "patient_flow";
 
@@ -88,6 +88,7 @@ export const patientFlowPaths = {
   login: "/login",
   registrations: "/registrations",
   registrationNew: "/registrations/new",
+  aiSessions: "/ai/sessions",
   aiSession: (sessionId: string) => `/ai/session/${sessionId}`,
   triageResult: (sessionId: string) => `/triage/result/${sessionId}`,
   triageHighRisk: (sessionId: string) => `/triage/high-risk/${sessionId}`,
