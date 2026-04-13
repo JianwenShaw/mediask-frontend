@@ -139,3 +139,33 @@
 - Show AI summary by default, not raw AI transcript.
 - Keep the backoffice UI optimized for dense desktop workflows.
 - Apply a consistent light theme at the app root.
+
+## 5. Backoffice RAG Testing Module UI/UX [PLAN]
+
+### 📍 1. Menu & Navigation
+- [x] Add "Retrieval & Testing" (Playground) tab inside the Knowledge Base detail page.
+
+### 🎨 2. Playground Layout (Split View)
+- [x] Implement a split-pane layout using Ant Design `Row`/`Col` or `Flex`.
+- [x] **Left Panel (Chat & QA Area):**
+  - [x] Chat UI with `Input.TextArea` for entering queries.
+  - [x] Message bubbles for User and Assistant.
+  - [x] Citation indicators (e.g., "[1]") below assistant responses.
+- [x] **Right Panel (Retrieval Config & Context Area):**
+  - [x] **Config Form:**
+    - [x] Top-K slider & input (1-20, default 5).
+    - [x] Similarity Threshold slider (0.0 - 1.0).
+  - [x] **Retrieved Chunks List:**
+    - [x] Render using Ant Design `List` and `Card`.
+    - [x] Display Score badge (color-coded: >0.8 green, 0.6-0.8 orange, <0.6 red).
+    - [x] Display Source document link.
+    - [x] Display truncated chunk content (`Typography.Paragraph` with expandable ellipsis).
+
+### 📦 3. Mock Data Integration
+- [x] Create mock chat history data structures.
+- [x] Create mock retrieved chunks (`id`, `score`, `document_name`, `content`).
+
+### 🔌 4. API Integration
+- [x] Implement `sendAiChat` non-streaming method in API client.
+- [x] Connect Playground to `/api/v1/ai/chat` for real testing.
+- [ ] TODO: Support test parameters (`knowledgeBaseId`, `topK`, `threshold`) when backend is ready.

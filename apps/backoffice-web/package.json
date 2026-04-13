@@ -6,6 +6,8 @@
     "@ant-design/icons": "~6.1.1",
     "@mediask/api-client": "workspace:*",
     "@mediask/shared-types": "workspace:*",
-    "antd": "^6.3.5"
+    "antd": "^6.3.5",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   }
 }

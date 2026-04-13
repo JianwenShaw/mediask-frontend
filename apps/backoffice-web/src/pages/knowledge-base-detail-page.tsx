@@ -35,6 +35,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { backofficeApi } from "../lib/api";
+import { KnowledgeBaseTestingPanel } from "./knowledge-base-testing-panel";
 
 const { Title, Text } = Typography;
 const { Dragger } = Upload;
@@ -434,6 +435,15 @@ export const KnowledgeBaseDetailPage = () => {
                     }}
                     onChange={handleDocumentTableChange}
                   />
+                </div>
+              ),
+            },
+            {
+              key: "testing",
+              label: "命中测试 (Playground)",
+              children: (
+                <div style={{ padding: "24px 0" }}>
+                  <KnowledgeBaseTestingPanel knowledgeBaseId={knowledgeBaseId} />
                 </div>
               ),
             },
