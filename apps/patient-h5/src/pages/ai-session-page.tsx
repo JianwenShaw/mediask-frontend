@@ -8,7 +8,7 @@ import {
   patientFlowPaths,
   usePatientFlowStore,
 } from "../flow/patient-flow-store";
-import { patientApi, patientConnectAiChatStream } from "../lib/api";
+import { patientApi } from "../lib/api";
 import { parseAiMessageContent } from "../lib/parse-ai-message";
 
 type Message = {
@@ -60,6 +60,7 @@ export const AiSessionPage = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [realSessionId, setRealSessionId] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [currentQuickReplies, setCurrentQuickReplies] = useState<string[]>(QUICK_REPLIES);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -131,73 +132,55 @@ export const AiSessionPage = () => {
     ]);
 
     try {
-      await patientConnectAiChatStream({
-        body: {
-          sessionId: realSessionId,
-          message: userMsg,
-          departmentId: null,
-          sceneType: "PRE_CONSULTATION",
-          useStream: true,
-        },
-        onEvent: (event) => {
-          if (event.event === "message") {
-            const chunk = parseAiMessageContent(event.data);
-            
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === assistantMsgId
-                  ? { ...msg, content: msg.content + chunk }
-                  : msg
-              )
-            );
-          } else if (event.event === "meta") {
-            const data = event.data;
-            if (data.sessionId) {
-              setRealSessionId(data.sessionId);
-              if (sessionId === "new") {
-                navigate(patientFlowPaths.aiSession(data.sessionId), { replace: true });
-              }
-            }
-            if (data.triageResult) {
-              const triage = data.triageResult;
-              const hasRecommendation = triage.recommendedDepartments && triage.recommendedDepartments.length > 0;
-              const isHighRisk = triage.nextAction === "EMERGENCY_OFFLINE" || triage.nextAction === "MANUAL_SUPPORT";
-              const isRegistration = triage.nextAction === "GO_REGISTRATION";
-              
-              if (hasRecommendation || isHighRisk || isRegistration) {
-                completeTriage(data.sessionId || sessionId!, triage);
-                navigate(getTriageCompletionPath(data.sessionId || sessionId!, triage), { replace: true });
-              }
-            }
-          } else if (event.event === "end") {
-            setIsTyping(false);
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === assistantMsgId ? { ...msg, isStreaming: false } : msg
-              )
-            );
-          } else if (event.event === "error") {
-            setIsTyping(false);
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === assistantMsgId
-                  ? {
-                      ...msg,
-                      isStreaming: false,
-                      content: msg.content + "\n[发生错误: " + (event.data.msg || "未知") + "]",
-                    }
-                  : msg
-              )
-            );
-          }
-        },
+      const response = await patientApi.sendAiChat({
+        sessionId: realSessionId,
+        message: userMsg,
+        departmentId: null,
+        sceneType: "PRE_CONSULTATION",
+        useStream: false,
       });
-    } catch (e) {
+
+      const { data } = response;
+      const assistantContent = parseAiMessageContent(data.answer);
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMsgId
+            ? { ...msg, content: assistantContent, isStreaming: false }
+            : msg
+        )
+      );
+
+      if (data.sessionId) {
+        setRealSessionId(data.sessionId);
+        if (sessionId === "new") {
+          navigate(patientFlowPaths.aiSession(data.sessionId), { replace: true });
+        }
+      }
+
+      if (data.triageResult) {
+        const triage = data.triageResult;
+        
+        if (triage.followUpQuestions && triage.followUpQuestions.length > 0) {
+          setCurrentQuickReplies(triage.followUpQuestions);
+        } else {
+          setCurrentQuickReplies([]);
+        }
+
+        const isResultReady = triage.triageStage === "READY" || triage.triageStage === "BLOCKED";
+        
+        if (isResultReady || triage.nextAction === "VIEW_TRIAGE_RESULT") {
+          completeTriage(data.sessionId || sessionId!, triage);
+          navigate(getTriageCompletionPath(data.sessionId || sessionId!, triage), { replace: true });
+        }
+      }
+      setIsTyping(false);
+    } catch (e: any) {
       setIsTyping(false);
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantMsgId
-            ? { ...msg, isStreaming: false, content: msg.content + "\n[网络请求失败]" }
+            ? { ...msg, isStreaming: false, content: msg.content + `\n[请求失败: ${e.message || "未知错误"}]` }
             : msg
         )
       );
@@ -303,9 +286,9 @@ export const AiSessionPage = () => {
 
       {/* Input Area */}
       <div className="bg-white border-t border-gray-100 p-4 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.02)] flex flex-col">
-        {!isTyping && (
+        {!isTyping && currentQuickReplies.length > 0 && (
           <div className="overflow-x-auto whitespace-nowrap pb-3 -mx-4 px-4 no-scrollbar flex gap-2">
-            {QUICK_REPLIES.map((reply) => (
+            {currentQuickReplies.map((reply) => (
               <button
                 key={reply}
                 onClick={() => setInput(reply)}

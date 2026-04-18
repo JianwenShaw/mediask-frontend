@@ -78,6 +78,8 @@ export const TriageResultPage = () => {
   const hasAdvice = !!result.careAdvice;
   const hasCitations = result.citations && result.citations.length > 0;
 
+  const isUpdating = result.resultStatus === "UPDATING";
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-gray-50 pb-[100px]">
       <div className="bg-[#00b96b] text-white pt-12 pb-16 px-6 rounded-b-[40px] shadow-sm">
@@ -86,6 +88,15 @@ export const TriageResultPage = () => {
       </div>
 
       <div className="px-4 -mt-10 space-y-4">
+        {isUpdating && (
+          <div className="bg-amber-50 text-amber-600 p-3 rounded-xl text-sm mb-2 flex gap-2">
+            <svg className="w-5 h-5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>AI 正在基于最新对话重新评估，当前展示的是上一版的导诊结果。</span>
+          </div>
+        )}
+        
         {/* Recommended Departments Card */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-4">

@@ -27,7 +27,12 @@ export type NextAction =
   | "VIEW_TRIAGE_RESULT"
   | "GO_REGISTRATION"
   | "EMERGENCY_OFFLINE"
-  | "MANUAL_SUPPORT";
+  | "MANUAL_SUPPORT"
+  | "CONTINUE_TRIAGE";
+
+export type TriageStage = "COLLECTING" | "READY" | "BLOCKED";
+
+export type ResultStatus = "CURRENT" | "UPDATING";
 
 export type Citation = {
   chunkId: string;
@@ -72,9 +77,16 @@ export type AiChatRequest = {
 };
 
 export type TriageResult = {
+  resultStatus?: ResultStatus;
+  triageStage?: TriageStage;
+  finalizedTurnId?: string;
+  finalizedAt?: string;
+  hasActiveCycle?: boolean;
+  activeCycleTurnNo?: number;
   riskLevel: RiskLevel;
   guardrailAction: GuardrailAction;
   nextAction: NextAction;
+  followUpQuestions?: string[];
   recommendedDepartments?: RecommendedDepartment[];
   chiefComplaintSummary?: string;
   careAdvice?: string;

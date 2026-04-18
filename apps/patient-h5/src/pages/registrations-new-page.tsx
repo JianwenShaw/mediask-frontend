@@ -160,7 +160,7 @@ export const RegistrationsNewPage = () => {
       await patientApi.post('/api/v1/registrations', {
         clinicSessionId: session.clinicSessionId,
         clinicSlotId: 1, // mock slot
-        sourceAiSessionId: registrationEntry?.sessionId === 'direct-registration' ? undefined : (typeof registrationEntry?.sessionId === 'string' ? parseInt(registrationEntry.sessionId, 10) : registrationEntry?.sessionId),
+        sourceAiSessionId: registrationEntry?.sessionId === 'direct-registration' ? undefined : registrationEntry?.sessionId,
       });
       
       navigate(patientFlowPaths.registrations, { replace: true });

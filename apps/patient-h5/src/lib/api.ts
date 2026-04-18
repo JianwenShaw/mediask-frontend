@@ -1,5 +1,4 @@
-import { ApiError, connectAiChatStream, createApiClient } from "@mediask/api-client";
-import type { ConnectAiChatStreamOptions } from "@mediask/api-client";
+import { ApiError, createApiClient } from "@mediask/api-client";
 
 import { usePatientAuthStore } from "../auth/auth-store";
 
@@ -23,15 +22,3 @@ export const patientApi = createApiClient({
   onUnauthorized,
   onForbidden,
 });
-
-export const patientConnectAiChatStream = (
-  options: Omit<ConnectAiChatStreamOptions, "baseUrl" | "getToken" | "onUnauthorized" | "onForbidden">
-) => {
-  return connectAiChatStream({
-    baseUrl: import.meta.env.VITE_API_BASE_URL ?? "",
-    getToken,
-    onUnauthorized,
-    onForbidden,
-    ...options,
-  });
-};
