@@ -1,40 +1,54 @@
 import { EyeOutlined } from "@ant-design/icons";
-import { Badge, Button, Card, Input, Select, Space, Table, Tag } from "antd";
+import type { Encounter, EncounterStatus } from "@mediask/shared-types";
+import { Badge, Button, Card, Empty, Input, Select, Space, Table, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
-interface Encounter {
-  id: string;
-  patientName: string;
-  age: number;
-  gender: string;
-  time: string;
-  department: string;
-  riskLevel: "low" | "medium" | "high";
-  status: "pending" | "in_progress" | "completed";
-}
+import { backofficeApi } from "../lib/api";
 
-const mockData: Encounter[] = [
-  { id: "enc-101", patientName: "张三", age: 45, gender: "男", time: "10:05", department: "心内科", riskLevel: "high", status: "pending" },
-  { id: "enc-102", patientName: "李四", age: 28, gender: "女", time: "10:15", department: "呼吸科", riskLevel: "medium", status: "pending" },
-  { id: "enc-103", patientName: "王五", age: 60, gender: "男", time: "10:30", department: "消化内科", riskLevel: "low", status: "pending" },
-  { id: "enc-104", patientName: "赵六", age: 34, gender: "女", time: "09:00", department: "内分泌科", riskLevel: "low", status: "completed" },
-  { id: "enc-105", patientName: "孙七", age: 50, gender: "男", time: "09:30", department: "骨科", riskLevel: "medium", status: "in_progress" },
-];
+type EncounterFilterStatus = "all" | EncounterStatus;
+
+const statusLabelMap: Record<EncounterStatus, string> = {
+  SCHEDULED: "待接诊",
+  IN_PROGRESS: "接诊中",
+  COMPLETED: "已完成",
+  CANCELLED: "已取消",
+};
 
 export const EncountersPage = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Encounter[]>([]);
+  const [keyword, setKeyword] = useState("");
+  const [statusFilter, setStatusFilter] = useState<EncounterFilterStatus>("all");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setData(mockData);
+  const loadEncounters = async (status: EncounterFilterStatus) => {
+    setLoading(true);
+
+    try {
+      const result = await backofficeApi.getEncounters({
+        status: status === "all" ? undefined : status,
+      });
+      setData(result.data.items);
+    } catch (error) {
+      const errorText = error instanceof Error ? error.message : "就诊列表加载失败";
+      void message.error(errorText);
+      setData([]);
+    } finally {
       setLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  };
+
+  useEffect(() => {
+    void loadEncounters(statusFilter);
+  }, [statusFilter]);
+
+  const filteredData = keyword.trim()
+    ? data.filter(
+        (item) => item.patientName.includes(keyword.trim()) || item.encounterId.includes(keyword.trim()),
+      )
+    : data;
 
   const columns: ColumnsType<Encounter> = [
     {
@@ -44,45 +58,29 @@ export const EncountersPage = () => {
       render: (text) => <strong>{text}</strong>,
     },
     {
-      title: "性别/年龄",
-      key: "age",
-      render: (_, record) => `${record.gender} • ${record.age}岁`,
-    },
-    {
       title: "就诊时间",
-      dataIndex: "time",
-      key: "time",
+      dataIndex: "sessionDate",
+      key: "sessionDate",
     },
     {
       title: "挂号科室",
-      dataIndex: "department",
-      key: "department",
+      dataIndex: "departmentName",
+      key: "departmentName",
     },
     {
-      title: "风险评估",
-      dataIndex: "riskLevel",
-      key: "riskLevel",
-      render: (riskLevel) => {
-        let color = "success";
-        let text = "低风险";
-        if (riskLevel === "high") {
-          color = "error";
-          text = "高风险";
-        } else if (riskLevel === "medium") {
-          color = "warning";
-          text = "中风险";
-        }
-        return <Tag color={color}>{text}</Tag>;
-      },
+      title: "时段",
+      dataIndex: "periodCode",
+      key: "periodCode",
     },
     {
       title: "状态",
-      dataIndex: "status",
+      dataIndex: "encounterStatus",
       key: "status",
-      render: (status) => {
-        if (status === "completed") return <Badge status="success" text="已完成" />;
-        if (status === "in_progress") return <Badge status="processing" text="接诊中" />;
-        return <Badge status="default" text="待接诊" />;
+      render: (status: EncounterStatus) => {
+        if (status === "COMPLETED") return <Badge status="success" text={statusLabelMap[status]} />;
+        if (status === "IN_PROGRESS") return <Badge status="processing" text={statusLabelMap[status]} />;
+        if (status === "CANCELLED") return <Badge status="error" text={statusLabelMap[status]} />;
+        return <Badge status="default" text={statusLabelMap[status]} />;
       },
     },
     {
@@ -93,7 +91,7 @@ export const EncountersPage = () => {
           type="link"
           size="small"
           icon={<EyeOutlined />}
-          onClick={() => navigate(`/encounters/${record.id}`)}
+          onClick={() => navigate(`/encounters/${record.encounterId}`)}
         >
           查看 / 接诊
         </Button>
@@ -106,23 +104,30 @@ export const EncountersPage = () => {
       <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>就诊列表</h2>
         <Space>
-          <Input placeholder="搜索患者姓名/编号" style={{ width: 220 }} />
-          <Select defaultValue="all" style={{ width: 120 }}>
+          <Input
+            placeholder="搜索患者姓名/接诊ID"
+            style={{ width: 220 }}
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            allowClear
+          />
+          <Select value={statusFilter} style={{ width: 140 }} onChange={(value) => setStatusFilter(value)}>
             <Select.Option value="all">所有状态</Select.Option>
-            <Select.Option value="pending">待接诊</Select.Option>
-            <Select.Option value="in_progress">接诊中</Select.Option>
-            <Select.Option value="completed">已完成</Select.Option>
+            <Select.Option value="SCHEDULED">待接诊</Select.Option>
+            <Select.Option value="IN_PROGRESS">接诊中</Select.Option>
+            <Select.Option value="COMPLETED">已完成</Select.Option>
+            <Select.Option value="CANCELLED">已取消</Select.Option>
           </Select>
-          <Button type="primary">筛选</Button>
         </Space>
       </div>
 
       <Table
         columns={columns}
-        dataSource={data}
-        rowKey="id"
+        dataSource={filteredData}
+        rowKey="encounterId"
         loading={loading}
-        size="middle" // 增加表格密度
+        locale={{ emptyText: <Empty description="暂无就诊数据" /> }}
+        size="middle"
         pagination={{ defaultPageSize: 10, showSizeChanger: true }}
       />
     </Card>

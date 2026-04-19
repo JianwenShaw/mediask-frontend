@@ -3,6 +3,9 @@ import type {
   AiChatResponse,
   AiSession,
   AiSessionDetail,
+  Encounter,
+  EncounterAiSummary,
+  EncounterStatus,
   KnowledgeBase,
   KnowledgeBaseCreateRequest,
   KnowledgeBaseListQuery,
@@ -155,6 +158,27 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
     },
     getAiSessionTriageResult(sessionId: string, init?: RequestInit) {
       return request<TriageResult>(`/api/v1/ai/sessions/${sessionId}/triage-result`, {
+        ...init,
+        method: "GET",
+      });
+    },
+    getEncounters(query: { status?: EncounterStatus } = {}, init?: RequestInit) {
+      return request<{ items: Encounter[] }>(`/api/v1/encounters${buildQueryString(query)}`, {
+        ...init,
+        method: "GET",
+      });
+    },
+    getEncounter(encounterId: string, init?: RequestInit) {
+      return request<Encounter & { patientSummary?: Record<string, unknown> }>(
+        `/api/v1/encounters/${encounterId}`,
+        {
+          ...init,
+          method: "GET",
+        },
+      );
+    },
+    getEncounterAiSummary(encounterId: string, init?: RequestInit) {
+      return request<EncounterAiSummary>(`/api/v1/encounters/${encounterId}/ai-summary`, {
         ...init,
         method: "GET",
       });
