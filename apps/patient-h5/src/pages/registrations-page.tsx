@@ -3,14 +3,7 @@ import { useNavigate } from "react-router";
 import type { Registration } from "@mediask/shared-types";
 
 import { patientApi } from "../lib/api";
-
-const formatDateTime = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return {
-    date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-    time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
-  };
-};
+import { formatApiDateTime } from "../lib/date-time";
 
 export const RegistrationsPage = () => {
   const navigate = useNavigate();
@@ -109,7 +102,7 @@ export const RegistrationsPage = () => {
         ) : filteredRegistrations.length > 0 ? (
           filteredRegistrations.map((reg) => {
             const isPending = reg.status === "PENDING_PAYMENT" || reg.status === "CONFIRMED";
-            const dt = formatDateTime(reg.createdAt);
+            const dt = formatApiDateTime(reg.createdAt);
             // We use orderNo or a placeholder if department name is missing in Registration DTO
             const displayTitle = "挂号订单: " + reg.orderNo;
             

@@ -4,14 +4,7 @@ import type { AiSession } from "@mediask/shared-types";
 
 import { patientFlowPaths } from "../flow/patient-flow-store";
 import { patientApi } from "../lib/api";
-
-const formatDateTime = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return {
-    date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-    time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
-  };
-};
+import { formatApiDateTime } from "../lib/date-time";
 
 export const AiSessionsPage = () => {
   const navigate = useNavigate();
@@ -86,7 +79,7 @@ export const AiSessionsPage = () => {
                   <svg className="w-4 h-4 mr-1.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
-                  {formatDateTime(session.startedAt).date} {formatDateTime(session.startedAt).time}
+                  {formatApiDateTime(session.startedAt).date} {formatApiDateTime(session.startedAt).time}
                   <div className="w-1 h-1 rounded-full bg-gray-300 mx-2"></div>
                   <span>{session.sceneType === "PRE_CONSULTATION" ? "导诊分诊" : "其他"}</span>
                 </div>

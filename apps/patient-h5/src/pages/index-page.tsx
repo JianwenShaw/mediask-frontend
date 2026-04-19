@@ -5,14 +5,7 @@ import type { Registration } from "@mediask/shared-types";
 import { usePatientAuthStore } from "../auth/auth-store";
 import { patientFlowPaths, usePatientFlowStore } from "../flow/patient-flow-store";
 import { patientApi } from "../lib/api";
-
-const formatDateTime = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return {
-    date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-    time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
-  };
-};
+import { formatApiDateTime } from "../lib/date-time";
 
 export const IndexPage = () => {
   const navigate = useNavigate();
@@ -153,7 +146,7 @@ export const IndexPage = () => {
                   门诊预约: {upcomingReg.orderNo}
                 </div>
                 <div className="text-sm text-emerald-600/80">
-                  {formatDateTime(upcomingReg.createdAt).date} {formatDateTime(upcomingReg.createdAt).time}
+                  {formatApiDateTime(upcomingReg.createdAt).date} {formatApiDateTime(upcomingReg.createdAt).time}
                 </div>
               </div>
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-emerald-500">
