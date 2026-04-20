@@ -1,6 +1,7 @@
 import type {
   AiChatRequest,
   AiChatResponse,
+  ClinicSlot,
   AiSession,
   AiSessionDetail,
   Encounter,
@@ -16,6 +17,8 @@ import type {
   LoginRequest,
   LoginResponse,
   PageData,
+  RegistrationCancelResult,
+  RegistrationDetail,
   Result,
   TriageResult,
   UserContext,
@@ -181,6 +184,24 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
       return request<EncounterAiSummary>(`/api/v1/encounters/${encounterId}/ai-summary`, {
         ...init,
         method: "GET",
+      });
+    },
+    getClinicSessionSlots(clinicSessionId: string, init?: RequestInit) {
+      return request<{ items: ClinicSlot[] }>(`/api/v1/clinic-sessions/${clinicSessionId}/slots`, {
+        ...init,
+        method: "GET",
+      });
+    },
+    getRegistration(registrationId: string, init?: RequestInit) {
+      return request<RegistrationDetail>(`/api/v1/registrations/${registrationId}`, {
+        ...init,
+        method: "GET",
+      });
+    },
+    cancelRegistration(registrationId: string, init?: RequestInit) {
+      return request<RegistrationCancelResult>(`/api/v1/registrations/${registrationId}/cancel`, {
+        ...init,
+        method: "PATCH",
       });
     },
     listKnowledgeBases(query: KnowledgeBaseListQuery = {}, init?: RequestInit) {

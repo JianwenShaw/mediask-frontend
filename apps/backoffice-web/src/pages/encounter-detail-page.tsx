@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { backofficeApi } from "../lib/api";
+import { formatApiDate, formatApiDateTime } from "../lib/date-time";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -94,6 +95,8 @@ export const EncounterDetailPage = () => {
   const allergySummary = readPatientSummaryText(encounter?.patientSummary, "allergySummary");
   const historySummary = readPatientSummaryText(encounter?.patientSummary, "historySummary");
   const riskTag = aiSummary ? riskLevelTagMap[aiSummary.riskLevel] ?? null : null;
+  const startedAt = formatApiDateTime(encounter?.startedAt);
+  const endedAt = formatApiDateTime(encounter?.endedAt);
 
   return (
     <div>
@@ -197,7 +200,7 @@ export const EncounterDetailPage = () => {
                   {patientGender || patientAge ? `${patientGender ?? "-"} / ${patientAge ?? "-"}` : "-"}
                 </Descriptions.Item>
                 <Descriptions.Item label="就诊科室">{encounter?.departmentName ?? "-"}</Descriptions.Item>
-                <Descriptions.Item label="就诊日期">{encounter?.sessionDate ?? "-"}</Descriptions.Item>
+                <Descriptions.Item label="就诊日期">{formatApiDate(encounter?.sessionDate)}</Descriptions.Item>
                 <Descriptions.Item label="就诊时段">{encounter?.periodCode ?? "-"}</Descriptions.Item>
                 <Descriptions.Item label="接诊状态">{encounter?.encounterStatus ?? "-"}</Descriptions.Item>
                 <Descriptions.Item label="过敏史">{allergySummary ?? "-"}</Descriptions.Item>
@@ -214,13 +217,13 @@ export const EncounterDetailPage = () => {
                 <Descriptions.Item label="开始时间">
                   <Space>
                     <ClockCircleOutlined />
-                    <Text>{encounter?.startedAt ?? "-"}</Text>
+                    <Text>{startedAt.date} {startedAt.time}</Text>
                   </Space>
                 </Descriptions.Item>
                 <Descriptions.Item label="结束时间">
                   <Space>
                     <ClockCircleOutlined />
-                    <Text>{encounter?.endedAt ?? "-"}</Text>
+                    <Text>{endedAt.date} {endedAt.time}</Text>
                   </Space>
                 </Descriptions.Item>
               </Descriptions>

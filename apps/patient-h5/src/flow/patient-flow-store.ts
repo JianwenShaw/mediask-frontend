@@ -87,6 +87,7 @@ export const patientFlowPaths = {
   home: "/",
   login: "/login",
   registrations: "/registrations",
+  registrationDetail: (registrationId: string) => `/registrations/${registrationId}`,
   registrationNew: "/registrations/new",
   aiSessions: "/ai/sessions",
   aiSession: (sessionId: string) => `/ai/session/${sessionId}`,

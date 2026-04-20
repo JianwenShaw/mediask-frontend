@@ -3,7 +3,7 @@ export type Result<T> = {
   msg: string;
   data: T;
   requestId: string;
-  timestamp: string;
+  timestamp: number;
 };
 
 export type ApiResult<T> = Result<T>;
@@ -191,6 +191,13 @@ export type ClinicSession = {
   fee: number;
 };
 
+export type ClinicSlot = {
+  clinicSlotId: string;
+  slotSeq: number;
+  slotStartTime: string;
+  slotEndTime: string;
+};
+
 export type RegistrationStatus = "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
 
 export type Registration = {
@@ -199,6 +206,31 @@ export type Registration = {
   status: RegistrationStatus;
   createdAt: string;
   sourceAiSessionId?: string;
+};
+
+export type RegistrationDetail = {
+  registrationId: string;
+  orderNo: string;
+  status: RegistrationStatus;
+  createdAt: string;
+  sourceAiSessionId?: string;
+  clinicSessionId: string;
+  clinicSlotId: string;
+  departmentId: string;
+  departmentName?: string | null;
+  doctorId?: string | null;
+  doctorName?: string | null;
+  sessionDate?: string | null;
+  periodCode?: string | null;
+  fee: number;
+  cancelledAt?: string | null;
+  cancellationReason?: string | null;
+};
+
+export type RegistrationCancelResult = {
+  registrationId: string;
+  status: RegistrationStatus;
+  cancelledAt: string;
 };
 
 export type EncounterStatus = "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";

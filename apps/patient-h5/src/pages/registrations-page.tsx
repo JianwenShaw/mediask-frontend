@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Registration } from "@mediask/shared-types";
 
+import { patientFlowPaths } from "../flow/patient-flow-store";
 import { patientApi } from "../lib/api";
 import { formatApiDateTime } from "../lib/date-time";
 
@@ -10,6 +11,7 @@ export const RegistrationsPage = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"ALL" | "PENDING">("ALL");
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +36,33 @@ export const RegistrationsPage = () => {
       cancelled = true;
     };
   }, []);
+
+  const handleCancel = async (registrationId: string) => {
+    const confirmed = window.confirm("确认取消这条预约吗？");
+    if (!confirmed) {
+      return;
+    }
+
+    setCancelingId(registrationId);
+    try {
+      await patientApi.cancelRegistration(registrationId);
+      setRegistrations((prev) =>
+        prev.map((item) =>
+          item.registrationId === registrationId
+            ? {
+                ...item,
+                status: "CANCELLED",
+              }
+            : item,
+        ),
+      );
+    } catch (err) {
+      console.error("Failed to cancel registration", err);
+      window.alert("取消预约失败，请重试");
+    } finally {
+      setCancelingId(null);
+    }
+  };
 
   const filteredRegistrations = registrations.filter((reg) => {
     if (activeTab === "PENDING") {
@@ -140,16 +169,23 @@ export const RegistrationsPage = () => {
                   </p>
                 </div>
 
-                {isPending && (
-                  <div className="flex gap-3 mt-2 pt-3 border-t border-gray-50">
-                    <button className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium active:bg-gray-50 transition-colors">
-                      取消预约
+                <div className="flex gap-3 mt-2 pt-3 border-t border-gray-50">
+                  {isPending && (
+                    <button
+                      onClick={() => handleCancel(reg.registrationId)}
+                      disabled={cancelingId === reg.registrationId}
+                      className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium active:bg-gray-50 transition-colors disabled:opacity-50"
+                    >
+                      {cancelingId === reg.registrationId ? "取消中..." : "取消预约"}
                     </button>
-                    <button className="flex-1 py-2.5 bg-[#00b96b] text-white rounded-xl text-sm font-medium active:bg-[#009e5b] transition-colors">
-                      查看详情
-                    </button>
-                  </div>
-                )}
+                  )}
+                  <button
+                    onClick={() => navigate(patientFlowPaths.registrationDetail(reg.registrationId))}
+                    className="flex-1 py-2.5 bg-[#00b96b] text-white rounded-xl text-sm font-medium active:bg-[#009e5b] transition-colors"
+                  >
+                    查看详情
+                  </button>
+                </div>
               </div>
             );
           })

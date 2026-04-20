@@ -5,6 +5,7 @@ import { AiSessionPage } from "./pages/ai-session-page";
 import { AiSessionsPage } from "./pages/ai-sessions-page";
 import { IndexPage } from "./pages/index-page";
 import { LoginPage } from "./pages/login-page";
+import { RegistrationDetailPage } from "./pages/registration-detail-page";
 import { RegistrationsNewPage } from "./pages/registrations-new-page";
 import { RegistrationsPage } from "./pages/registrations-page";
 import { TriageHighRiskPage } from "./pages/triage-high-risk-page";
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
         element: <TriageHighRiskPage />,
       },
       { path: "registrations/new", element: <RegistrationsNewPage /> },
+      { path: "registrations/:registrationId", element: <RegistrationDetailPage /> },
       { path: "registrations", element: <RegistrationsPage /> },
     ],
   },

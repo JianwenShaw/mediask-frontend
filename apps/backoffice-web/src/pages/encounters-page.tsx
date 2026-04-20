@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { backofficeApi } from "../lib/api";
+import { formatApiDate } from "../lib/date-time";
 
 type EncounterFilterStatus = "all" | EncounterStatus;
 
@@ -61,6 +62,7 @@ export const EncountersPage = () => {
       title: "就诊时间",
       dataIndex: "sessionDate",
       key: "sessionDate",
+      render: (value: string) => formatApiDate(value),
     },
     {
       title: "挂号科室",

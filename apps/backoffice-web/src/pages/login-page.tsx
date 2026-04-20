@@ -1,6 +1,6 @@
 import type { LoginRequest } from "@mediask/shared-types";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Form, Input, Typography, message } from "antd";
+import { Button, Form, Input, Typography, message } from "antd";
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router";
 
@@ -180,7 +180,6 @@ export const LoginPage = () => {
             {/* Login Form */}
             <Form
               name="login_form"
-              initialValues={{ remember: true }}
               onFinish={onFinish}
               size="large"
               layout="vertical"
@@ -208,10 +207,7 @@ export const LoginPage = () => {
                 />
               </Form.Item>
 
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
-                <Form.Item name="remember" valuePropName="checked" noStyle>
-                  <Checkbox>自动登录</Checkbox>
-                </Form.Item>
+              <div style={{ marginBottom: 32 }}>
                 <a
                   href="#"
                   style={{ color: "#1677FF", fontSize: 14 }}
