@@ -111,7 +111,6 @@ export const WorkbenchPage = () => {
 
   const selectedPatient = selectedDetail;
 
-  // 从 patientSummary 读取值
   const readPatientSummaryText = (
     patientSummary: EncounterWithDetail["patientSummary"],
     key: string,
@@ -129,7 +128,6 @@ export const WorkbenchPage = () => {
     return null;
   };
 
-  // 风险颜色映射
   const getRiskColor = (level: RiskLevel) => {
     switch (level) {
       case 'high': return '#FF4D4F';
@@ -139,7 +137,16 @@ export const WorkbenchPage = () => {
     }
   };
 
-  // 格式化就诊时间
+  const getGenderTag = (gender: string | null) => {
+    const genderMap: Record<string, { text: string; color: string }> = {
+      MALE: { text: '男', color: 'blue' },
+      FEMALE: { text: '女', color: 'pink' },
+      OTHER: { text: '未知', color: 'default' },
+    };
+    const g = genderMap[gender ?? ''] || { text: '-', color: 'default' };
+    return <Tag color={g.color} style={{ marginRight: 0 }}>{g.text}</Tag>;
+  };
+
   const formatSessionTime = (date: string, periodCode: string) => {
     const [year, month, day] = date.split('-').map(Number);
     const d = new Date(year, month - 1, day);
@@ -155,7 +162,6 @@ export const WorkbenchPage = () => {
 
   return (
     <Layout style={{ height: "100vh", backgroundColor: "#fff", overflow: 'hidden' }}>
-      {/* 极简全局头部 (Inline Header) */}
       <div style={{ 
         padding: "12px 24px", 
         borderBottom: "1px solid #e8e8e8",
@@ -169,7 +175,6 @@ export const WorkbenchPage = () => {
           <Tag bordered={false} color="processing" style={{ borderRadius: 4 }}>心血管内科</Tag>
         </Space>
         
-        {/* KPI 状态栏 (等宽字体增强数据感) */}
         <Space split={<Divider type="vertical" />} style={{ fontSize: 13, color: '#595959' }}>
           <span>今日接诊 <strong style={{ fontFamily: 'monospace', fontSize: 16, color: '#1f1f1f', marginLeft: 4 }}>12</strong></span>
           <span>当前候诊 <strong style={{ fontFamily: 'monospace', fontSize: 16, color: '#1f1f1f', marginLeft: 4 }}>4</strong></span>
@@ -177,10 +182,8 @@ export const WorkbenchPage = () => {
         </Space>
       </div>
 
-      {/* 核心工作区 (非对称双栏布局) */}
       <Content style={{ display: 'flex', height: 'calc(100vh - 53px)' }}>
         
-        {/* 左栏：动态候诊流 (The Pipeline) */}
         <div style={{ 
           width: '320px', 
           borderRight: '1px solid #e8e8e8', 
@@ -259,20 +262,17 @@ export const WorkbenchPage = () => {
                 <Button type="text" size="small" icon={<HistoryOutlined />} style={{ color: '#595959', fontSize: 13 }}>历史病历</Button>
               </div>
 
-              {/* 核心信息滚动区 */}
               <div style={{ flex: 1, padding: '24px 32px', overflowY: 'auto' }}>
                 {detailLoading ? (
                   <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>加载患者详情中...</div>
                 ) : (
                   <Row gutter={48}>
-                    {/* 左侧主视区：体征、主诉、AI摘要 */}
                     <Col span={16}>
-                      {/* 基础信息 */}
                       <div style={{ marginBottom: 24 }}>
                         <Space align="center" size="middle" style={{ marginBottom: 12 }}>
                           <Title level={3} style={{ margin: 0, color: '#1f1f1f' }}>{selectedPatient.patientName}</Title>
+                          {getGenderTag(readPatientSummaryText(selectedPatient.patientSummary, 'gender'))}
                           <Text type="secondary" style={{ fontSize: 15 }}>
-                            {readPatientSummaryText(selectedPatient.patientSummary, 'gender') || '-'} |
                             {readPatientSummaryText(selectedPatient.patientSummary, 'age') || '-'} 岁
                           </Text>
                         </Space>
@@ -283,7 +283,6 @@ export const WorkbenchPage = () => {
                         </Space>
                       </div>
 
-                      {/* AI 问诊摘要 (高亮区域) */}
                       {selectedPatient.aiSummary && (
                         <div style={{
                           backgroundColor: '#f0f5ff',

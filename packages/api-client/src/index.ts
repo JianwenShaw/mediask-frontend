@@ -178,7 +178,33 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
           ...init,
           method: "GET",
         },
-      );
+      ).then((result) => {
+        const summary = result.data.patientSummary as Record<string, unknown> | undefined;
+        if (summary) {
+          return {
+            ...result,
+            data: {
+              ...result.data,
+              patientUserId: summary.patientUserId as string,
+              patientName: summary.patientName as string,
+              departmentId: summary.departmentId as string,
+              departmentName: summary.departmentName as string,
+              sessionDate: summary.sessionDate as string,
+              periodCode: summary.periodCode as string,
+              encounterStatus: summary.encounterStatus as EncounterStatus,
+              startedAt: summary.startedAt as string | undefined,
+              endedAt: summary.endedAt as string | undefined,
+              patientSummary: {
+                age: summary.age,
+                gender: summary.gender,
+                allergySummary: summary.allergySummary,
+                historySummary: summary.historySummary,
+              },
+            },
+          };
+        }
+        return result;
+      });
     },
     getEncounterAiSummary(encounterId: string, init?: RequestInit) {
       return request<EncounterAiSummary>(`/api/v1/encounters/${encounterId}/ai-summary`, {
