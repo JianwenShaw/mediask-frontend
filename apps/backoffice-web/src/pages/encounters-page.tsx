@@ -17,6 +17,12 @@ const statusLabelMap: Record<EncounterStatus, string> = {
   CANCELLED: "已取消",
 };
 
+const periodMap: Record<string, string> = {
+  MORNING: "上午",
+  AFTERNOON: "下午",
+  EVENING: "晚上",
+};
+
 export const EncountersPage = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Encounter[]>([]);
@@ -77,20 +83,18 @@ export const EncountersPage = () => {
       render: (text) => <strong>{text}</strong>,
     },
     {
-      title: "就诊时间",
-      dataIndex: "sessionDate",
-      key: "sessionDate",
-      render: (value: string) => formatApiDate(value),
+      title: "预约时间",
+      key: "appointmentTime",
+      render: (_, record) => {
+        const date = formatApiDate(record.sessionDate);
+        const period = record.periodCode ? (periodMap[record.periodCode] || record.periodCode) : "-";
+        return `${date} ${period}`;
+      },
     },
     {
       title: "挂号科室",
       dataIndex: "departmentName",
       key: "departmentName",
-    },
-    {
-      title: "时段",
-      dataIndex: "periodCode",
-      key: "periodCode",
     },
     {
       title: "状态",
@@ -121,7 +125,7 @@ export const EncountersPage = () => {
   ];
 
   return (
-    <Card bordered={false} styles={{ body: { padding: "20px 24px" } }}>
+    <Card bordered={false} styles={{ body: { padding: "20px 24px" } }} style={{ boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)' }}>
       <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>就诊列表</h2>
         <Space>

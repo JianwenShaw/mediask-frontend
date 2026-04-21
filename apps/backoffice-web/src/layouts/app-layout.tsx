@@ -278,7 +278,7 @@ export const AppLayout = () => {
               style={{
                 flex: 1,
                 minHeight: 360,
-                background: colorBgContainer,
+                background: "transparent",
                 borderRadius: borderRadiusLG,
               }}
             >

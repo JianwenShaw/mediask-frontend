@@ -80,7 +80,7 @@ export const WorkbenchPage = () => {
       try {
         const [encounterResult, aiSummaryResult] = await Promise.all([
           backofficeApi.getEncounter(selectedId),
-          backofficeApi.getEncounterAiSummary(selectedId),
+          backofficeApi.getEncounterAiSummary(selectedId).catch(() => ({ data: undefined })),
         ]);
 
         if (!mounted) {
@@ -281,10 +281,15 @@ export const WorkbenchPage = () => {
                   <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>加载患者详情中...</div>
                 ) : (
                   <Row gutter={48}>
-                    <Col span={16}>
+                    <Col span={selectedPatient.aiSummary ? 16 : 24}>
                       <div style={{ marginBottom: 24 }}>
                         <Space align="center" size="middle" style={{ marginBottom: 12 }}>
                           <Title level={3} style={{ margin: 0, color: '#1f1f1f' }}>{selectedPatient.patientName}</Title>
+                          {selectedPatient.aiSummary ? (
+                            <Tag color="blue" style={{ margin: 0 }}>AI 预问诊</Tag>
+                          ) : (
+                            <Tag color="default" style={{ margin: 0 }}>常规挂号</Tag>
+                          )}
                           {getGenderTag(readPatientSummaryText(selectedPatient.patientSummary, 'gender'))}
                           <Text type="secondary" style={{ fontSize: 15 }}>
                             {readPatientSummaryText(selectedPatient.patientSummary, 'age') || '-'} 岁
@@ -297,7 +302,7 @@ export const WorkbenchPage = () => {
                         </Space>
                       </div>
 
-                      {selectedPatient.aiSummary && (
+                      {selectedPatient.aiSummary ? (
                         <div style={{
                           backgroundColor: '#f0f5ff',
                           border: '1px solid #d6e4ff',
@@ -324,6 +329,17 @@ export const WorkbenchPage = () => {
                             </Tag>
                           </div>
                         </div>
+                      ) : (
+                        <div style={{
+                          backgroundColor: '#fafafa',
+                          border: '1px dashed #d9d9d9',
+                          borderRadius: 6,
+                          padding: '24px 16px',
+                          marginBottom: 32,
+                          textAlign: 'center'
+                        }}>
+                          <Text type="secondary">患者未进行 AI 预问诊，请在接诊后手动记录主诉与现病史。</Text>
+                        </div>
                       )}
 
                       {/* 患者摘要 */}
@@ -348,30 +364,32 @@ export const WorkbenchPage = () => {
                       </div>
                     </Col>
 
-                    <Col span={8}>
-                      <div style={{ paddingLeft: 24, borderLeft: '1px solid #e8e8e8', height: '100%' }}>
-                        {selectedPatient.aiSummary && selectedPatient.aiSummary.latestCitations.length > 0 ? (
-                          <div>
-                            <Space align="center" style={{ marginBottom: 12 }}>
-                              <ExperimentOutlined style={{ color: '#1677FF' }} />
-                              <Text strong style={{ fontSize: 13 }}>AI 引用片段</Text>
-                            </Space>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                              {selectedPatient.aiSummary.latestCitations.map((citation, idx) => (
-                                <div key={citation.chunkId} style={{ backgroundColor: '#fff', padding: '10px 12px', border: '1px solid #f0f0f0', borderRadius: 4 }}>
-                                  <div style={{ marginBottom: 4 }}>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>#{citation.retrievalRank}</Text>
+                    {selectedPatient.aiSummary && (
+                      <Col span={8}>
+                        <div style={{ paddingLeft: 24, borderLeft: '1px solid #e8e8e8', height: '100%' }}>
+                          {selectedPatient.aiSummary.latestCitations.length > 0 ? (
+                            <div>
+                              <Space align="center" style={{ marginBottom: 12 }}>
+                                <ExperimentOutlined style={{ color: '#1677FF' }} />
+                                <Text strong style={{ fontSize: 13 }}>AI 引用片段</Text>
+                              </Space>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                {selectedPatient.aiSummary.latestCitations.map((citation, idx) => (
+                                  <div key={citation.chunkId} style={{ backgroundColor: '#fff', padding: '10px 12px', border: '1px solid #f0f0f0', borderRadius: 4 }}>
+                                    <div style={{ marginBottom: 4 }}>
+                                      <Text type="secondary" style={{ fontSize: 12 }}>#{citation.retrievalRank}</Text>
+                                    </div>
+                                    <Text style={{ fontSize: 13, color: '#262626' }}>{citation.snippet}</Text>
                                   </div>
-                                  <Text style={{ fontSize: 13, color: '#262626' }}>{citation.snippet}</Text>
-                                </div>
-                              ))}
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          <Text type="secondary" style={{ fontSize: 13 }}>暂无 AI 引用片段</Text>
-                        )}
-                      </div>
-                    </Col>
+                          ) : (
+                            <Text type="secondary" style={{ fontSize: 13 }}>暂无 AI 引用片段</Text>
+                          )}
+                        </div>
+                      </Col>
+                    )}
                   </Row>
                 )}
               </div>
