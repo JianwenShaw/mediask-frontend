@@ -42,6 +42,7 @@ export const WorkbenchPage = () => {
   const [selectedDetail, setSelectedDetail] = useState<EncounterWithDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [startEncounterLoading, setStartEncounterLoading] = useState(false);
   const navigate = useNavigate();
 
   // 加载待接诊队列
@@ -147,6 +148,21 @@ export const WorkbenchPage = () => {
     return <Tag color={g.color} style={{ marginRight: 0 }}>{g.text}</Tag>;
   };
 
+  const handleStartEncounter = async () => {
+    if (!selectedDetail) return;
+
+    setStartEncounterLoading(true);
+    try {
+      await backofficeApi.updateEncounter(selectedDetail.encounterId, { action: "START" });
+      navigate(`/encounters/${selectedDetail.encounterId}`);
+    } catch (error) {
+      const errorText = error instanceof Error ? error.message : "开始接诊失败";
+      void message.error(errorText);
+    } finally {
+      setStartEncounterLoading(false);
+    }
+  };
+
   const formatSessionTime = (date: string, periodCode: string) => {
     const [year, month, day] = date.split('-').map(Number);
     const d = new Date(year, month - 1, day);
@@ -243,11 +259,9 @@ export const WorkbenchPage = () => {
           </div>
         </div>
 
-        {/* 右栏：主操作聚焦区 (The Focus Stage) */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#fafafa', position: 'relative' }}>
           {selectedPatient ? (
             <>
-              {/* 致密化工具栏 (Toolbar) */}
               <div style={{
                 padding: '8px 24px',
                 backgroundColor: '#fff',
@@ -334,7 +348,6 @@ export const WorkbenchPage = () => {
                       </div>
                     </Col>
 
-                    {/* 右侧辅助区：AI 引用片段 */}
                     <Col span={8}>
                       <div style={{ paddingLeft: 24, borderLeft: '1px solid #e8e8e8', height: '100%' }}>
                         {selectedPatient.aiSummary && selectedPatient.aiSummary.latestCitations.length > 0 ? (
@@ -363,7 +376,6 @@ export const WorkbenchPage = () => {
                 )}
               </div>
 
-              {/* 固定底部操作栏 (Sticky Action Bar) */}
               <div style={{
                 padding: '16px 32px',
                 backgroundColor: '#fff',
@@ -383,7 +395,8 @@ export const WorkbenchPage = () => {
                   type="primary"
                   size="large"
                   style={{ borderRadius: 6, padding: '0 40px', fontWeight: 500 }}
-                  onClick={() => navigate(`/encounters/${selectedPatient.encounterId}`)}
+                  loading={startEncounterLoading}
+                  onClick={handleStartEncounter}
                 >
                   立即接诊
                 </Button>

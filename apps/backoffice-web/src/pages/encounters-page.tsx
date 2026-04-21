@@ -22,7 +22,25 @@ export const EncountersPage = () => {
   const [data, setData] = useState<Encounter[]>([]);
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<EncounterFilterStatus>("all");
+  const [startingEncounterId, setStartingEncounterId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const handleStartOrViewEncounter = async (record: Encounter) => {
+    if (record.encounterStatus === "SCHEDULED") {
+      setStartingEncounterId(record.encounterId);
+      try {
+        await backofficeApi.updateEncounter(record.encounterId, { action: "START" });
+        navigate(`/encounters/${record.encounterId}`);
+      } catch (error) {
+        const errorText = error instanceof Error ? error.message : "开始接诊失败";
+        void message.error(errorText);
+      } finally {
+        setStartingEncounterId(null);
+      }
+    } else {
+      navigate(`/encounters/${record.encounterId}`);
+    }
+  };
 
   const loadEncounters = async (status: EncounterFilterStatus) => {
     setLoading(true);
@@ -93,7 +111,8 @@ export const EncountersPage = () => {
           type="link"
           size="small"
           icon={<EyeOutlined />}
-          onClick={() => navigate(`/encounters/${record.encounterId}`)}
+          loading={startingEncounterId === record.encounterId}
+          onClick={() => handleStartOrViewEncounter(record)}
         >
           查看 / 接诊
         </Button>

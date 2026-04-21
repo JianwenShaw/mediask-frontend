@@ -14,7 +14,6 @@ const periodLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  PENDING_PAYMENT: "待支付",
   CONFIRMED: "待就诊",
   CANCELLED: "已取消",
   COMPLETED: "已完成",

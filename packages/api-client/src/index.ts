@@ -21,6 +21,8 @@ import type {
   RegistrationDetail,
   Result,
   TriageResult,
+  UpdateEncounterRequest,
+  UpdateEncounterResponse,
   UserContext,
 } from "@mediask/shared-types";
 
@@ -210,6 +212,13 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
       return request<EncounterAiSummary>(`/api/v1/encounters/${encounterId}/ai-summary`, {
         ...init,
         method: "GET",
+      });
+    },
+    updateEncounter(encounterId: string, body: UpdateEncounterRequest, init?: RequestInit) {
+      return request<UpdateEncounterResponse>(`/api/v1/encounters/${encounterId}`, {
+        ...init,
+        method: "PATCH",
+        body: JSON.stringify(body),
       });
     },
     getClinicSessionSlots(clinicSessionId: string, init?: RequestInit) {

@@ -1,6 +1,6 @@
-import { MedicineBoxOutlined, ArrowLeftOutlined, FormOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { MedicineBoxOutlined, ArrowLeftOutlined, FormOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import type { Encounter, EncounterAiSummary } from "@mediask/shared-types";
-import { Breadcrumb, Button, Card, Col, Descriptions, Empty, Row, Skeleton, Space, Tag, Typography, message } from "antd";
+import { Badge, Breadcrumb, Button, Card, Col, Descriptions, Empty, Row, Skeleton, Space, Tag, Typography, message } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
@@ -40,8 +40,25 @@ export const EncounterDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [encounter, setEncounter] = useState<EncounterDetail | null>(null);
   const [aiSummary, setAiSummary] = useState<EncounterAiSummary | null>(null);
+  const [completeLoading, setCompleteLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+
+  const handleCompleteEncounter = async () => {
+    if (!id) return;
+
+    setCompleteLoading(true);
+    try {
+      await backofficeApi.updateEncounter(id, { action: "COMPLETE" });
+      void message.success("接诊已完成");
+      navigate("/encounters");
+    } catch (error) {
+      const errorText = error instanceof Error ? error.message : "完成接诊失败";
+      void message.error(errorText);
+    } finally {
+      setCompleteLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) {
@@ -114,6 +131,16 @@ export const EncounterDetailPage = () => {
           患者就诊详情
         </Title>
         <Space>
+          {encounter?.encounterStatus === "IN_PROGRESS" && (
+            <Button
+              type="primary"
+              icon={<CheckCircleOutlined />}
+              loading={completeLoading}
+              onClick={handleCompleteEncounter}
+            >
+              完成接诊
+            </Button>
+          )}
           <Button icon={<FormOutlined />} onClick={() => navigate(`/emr/${encounterId}`)} disabled={!encounterId}>
             书写病历
           </Button>
@@ -202,7 +229,13 @@ export const EncounterDetailPage = () => {
                 <Descriptions.Item label="就诊科室">{encounter?.departmentName ?? "-"}</Descriptions.Item>
                 <Descriptions.Item label="就诊日期">{formatApiDate(encounter?.sessionDate)}</Descriptions.Item>
                 <Descriptions.Item label="就诊时段">{encounter?.periodCode ?? "-"}</Descriptions.Item>
-                <Descriptions.Item label="接诊状态">{encounter?.encounterStatus ?? "-"}</Descriptions.Item>
+                <Descriptions.Item label="接诊状态">
+                  {encounter?.encounterStatus === "SCHEDULED" && <Badge status="default" text="待接诊" />}
+                  {encounter?.encounterStatus === "IN_PROGRESS" && <Badge status="processing" text="接诊中" />}
+                  {encounter?.encounterStatus === "COMPLETED" && <Badge status="success" text="已完成" />}
+                  {encounter?.encounterStatus === "CANCELLED" && <Badge status="error" text="已取消" />}
+                  {!encounter?.encounterStatus && "-"}
+                </Descriptions.Item>
                 <Descriptions.Item label="过敏史">{allergySummary ?? "-"}</Descriptions.Item>
                 <Descriptions.Item label="病史摘要">{historySummary ?? "-"}</Descriptions.Item>
               </Descriptions>

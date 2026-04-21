@@ -66,7 +66,7 @@ export const RegistrationsPage = () => {
 
   const filteredRegistrations = registrations.filter((reg) => {
     if (activeTab === "PENDING") {
-      return reg.status === "PENDING_PAYMENT" || reg.status === "CONFIRMED";
+      return reg.status === "CONFIRMED";
     }
     return true;
   });
@@ -130,14 +130,13 @@ export const RegistrationsPage = () => {
           ))
         ) : filteredRegistrations.length > 0 ? (
           filteredRegistrations.map((reg) => {
-            const isPending = reg.status === "PENDING_PAYMENT" || reg.status === "CONFIRMED";
+            const isCancellable = reg.status === "CONFIRMED";
             const dt = formatApiDateTime(reg.createdAt);
             // We use orderNo or a placeholder if department name is missing in Registration DTO
             const displayTitle = "挂号订单: " + reg.orderNo;
             
             const getStatusText = (status: string) => {
               switch (status) {
-                case "PENDING_PAYMENT": return "待支付";
                 case "CONFIRMED": return "待就诊";
                 case "CANCELLED": return "已取消";
                 case "COMPLETED": return "已完成";
@@ -151,9 +150,9 @@ export const RegistrationsPage = () => {
                   <div className="text-gray-500 text-sm font-medium">{dt.date} {dt.time}</div>
                   <div
                     className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                      isPending
+                      isCancellable
                         ? "bg-blue-50 text-blue-600"
-                        : reg.status === "CANCELLED" 
+                        : reg.status === "CANCELLED"
                         ? "bg-gray-100 text-gray-400"
                         : "bg-emerald-50 text-emerald-600"
                     }`}
@@ -170,7 +169,7 @@ export const RegistrationsPage = () => {
                 </div>
 
                 <div className="flex gap-3 mt-2 pt-3 border-t border-gray-50">
-                  {isPending && (
+                  {isCancellable && (
                     <button
                       onClick={() => handleCancel(reg.registrationId)}
                       disabled={cancelingId === reg.registrationId}

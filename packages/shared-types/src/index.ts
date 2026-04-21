@@ -198,7 +198,7 @@ export type ClinicSlot = {
   slotEndTime: string;
 };
 
-export type RegistrationStatus = "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+export type RegistrationStatus = "CONFIRMED" | "CANCELLED" | "COMPLETED";
 
 export type Registration = {
   registrationId: string;
@@ -234,6 +234,19 @@ export type RegistrationCancelResult = {
 };
 
 export type EncounterStatus = "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+export type EncounterAction = "START" | "COMPLETE";
+
+export type UpdateEncounterRequest = {
+  action: EncounterAction;
+};
+
+export type UpdateEncounterResponse = {
+  encounterId: string;
+  encounterStatus: EncounterStatus;
+  startedAt?: string;
+  endedAt?: string;
+};
 
 export type Encounter = {
   encounterId: string;

@@ -20,7 +20,7 @@ export const IndexPage = () => {
   useEffect(() => {
     patientApi.get<{ items: Registration[] }>('/api/v1/registrations').then((res) => {
       const items = res.data?.items ?? [];
-      const pending = items.find((item) => item.status === "PENDING_PAYMENT" || item.status === "CONFIRMED");
+      const pending = items.find((item) => item.status === "CONFIRMED");
       if (pending) {
         setUpcomingReg(pending);
       }
